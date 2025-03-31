@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
@@ -8,7 +8,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Upload, Mail, Facebook, Github } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@radix-ui/react-dialog";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -17,6 +19,8 @@ const Auth = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   
   // Login form state
   const [loginEmail, setLoginEmail] = useState("");
@@ -26,6 +30,9 @@ const Auth = () => {
   const [signupName, setSignupName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,10 +96,73 @@ const Auth = () => {
     }
   };
   
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-greenhouse bg-cover bg-center p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!resetEmail) {
+      toast({
+        title: "Error",
+        description: "Please enter your email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      // Simulate password reset email sending
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast({
+        title: "Reset Email Sent",
+        description: "Check your inbox for password reset instructions.",
+      });
+      setShowForgotPassword(false);
+    } catch (error) {
+      toast({
+        title: "Failed to Send Reset Email",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImage(file);
+      const imageUrl = URL.createObjectURL(file);
+      setProfileImageUrl(imageUrl);
+    }
+  };
+  
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  
+  const handleSocialLogin = (provider: string) => {
+    setIsLoading(true);
+    
+    // Simulate social login
+    setTimeout(() => {
+      toast({
+        title: "Social Login",
+        description: `Logging in with ${provider}...`,
+      });
+      setIsLoading(false);
       
+      // For demo, we'll just log in the user after a delay
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500);
+    }, 1000);
+  };
+  
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-forest p-4">
       <div className="w-full max-w-md z-10">
         <div className="mb-8 text-center">
           <img 
@@ -101,7 +171,7 @@ const Auth = () => {
             className="w-24 h-24 mx-auto object-contain"
           />
           <h1 className="text-2xl font-bold mt-4 text-white">VentiGrow</h1>
-          <p className="text-white/80">Smart Agriculture Ventilation System</p>
+          <p className="text-lime">Smart Agriculture Ventilation System</p>
         </div>
       
         <Tabs defaultValue="login" className="w-full">
@@ -134,7 +204,17 @@ const Auth = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <div className="flex justify-between items-center">
+                      <Label htmlFor="password">Password</Label>
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="px-0 text-xs"
+                        onClick={() => setShowForgotPassword(true)}
+                      >
+                        Forgot password?
+                      </Button>
+                    </div>
                     <div className="relative">
                       <Input 
                         id="password" 
@@ -162,10 +242,10 @@ const Auth = () => {
                   </div>
                 </CardContent>
                 
-                <CardFooter className="flex flex-col">
+                <CardFooter className="flex flex-col gap-4">
                   <Button 
                     type="submit" 
-                    className="w-full bg-ventiprimary-500 hover:bg-ventiprimary-600" 
+                    className="w-full bg-forest hover:bg-forest/90 text-white" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -177,6 +257,42 @@ const Auth = () => {
                       "Login"
                     )}
                   </Button>
+                  
+                  <div className="relative w-full">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-muted" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => handleSocialLogin("Google")}
+                      disabled={isLoading}
+                    >
+                      <Mail className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => handleSocialLogin("Facebook")}
+                      disabled={isLoading}
+                    >
+                      <Facebook className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => handleSocialLogin("GitHub")}
+                      disabled={isLoading}
+                    >
+                      <Github className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardFooter>
               </form>
             </Card>
@@ -192,6 +308,35 @@ const Auth = () => {
               </CardHeader>
               <form onSubmit={handleSignup}>
                 <CardContent className="space-y-4">
+                  <div className="flex justify-center mb-2">
+                    <div className="relative">
+                      <Avatar className="w-24 h-24 border-2 border-forest">
+                        {profileImageUrl ? (
+                          <AvatarImage src={profileImageUrl} alt="Profile" />
+                        ) : (
+                          <AvatarFallback className="bg-muted text-xl">
+                            {signupName ? signupName.charAt(0).toUpperCase() : "U"}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <Button
+                        type="button"
+                        size="icon"
+                        className="absolute -bottom-2 -right-2 rounded-full bg-forest text-white hover:bg-forest/80"
+                        onClick={triggerFileInput}
+                      >
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleProfileImageUpload}
+                      />
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
                     <Input 
@@ -246,10 +391,10 @@ const Auth = () => {
                   </div>
                 </CardContent>
                 
-                <CardFooter className="flex flex-col">
+                <CardFooter className="flex flex-col gap-4">
                   <Button 
                     type="submit" 
-                    className="w-full bg-ventiprimary-500 hover:bg-ventiprimary-600" 
+                    className="w-full bg-forest hover:bg-forest/90 text-white" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -261,6 +406,42 @@ const Auth = () => {
                       "Create Account"
                     )}
                   </Button>
+                  
+                  <div className="relative w-full">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-muted" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => handleSocialLogin("Google")}
+                      disabled={isLoading}
+                    >
+                      <Mail className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => handleSocialLogin("Facebook")}
+                      disabled={isLoading}
+                    >
+                      <Facebook className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => handleSocialLogin("GitHub")}
+                      disabled={isLoading}
+                    >
+                      <Github className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardFooter>
               </form>
             </Card>
@@ -271,6 +452,58 @@ const Auth = () => {
       <div className="mt-8 text-white/60 text-sm z-10">
         © 2025 VentiGrow. All rights reserved.
       </div>
+      
+      {/* Forgot Password Dialog */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Reset Password</h2>
+            <p className="text-muted-foreground mb-4">
+              Enter your email address and we'll send you a link to reset your password.
+            </p>
+            
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <Input 
+                  id="reset-email" 
+                  type="email" 
+                  placeholder="your.email@example.com" 
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+              
+              <div className="flex gap-2 justify-end">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowForgotPassword(false)}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-forest hover:bg-forest/90 text-white" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send Reset Link"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

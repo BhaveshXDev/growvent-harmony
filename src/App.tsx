@@ -39,7 +39,7 @@ const App = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 3000);
+    }, 4000); // Changed from 3000 to 4000 for 4-second duration
     
     return () => clearTimeout(timer);
   }, []);
