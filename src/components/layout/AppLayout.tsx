@@ -12,10 +12,20 @@ import {
   SunMedium,
   Moon,
   Cloud,
-  Calendar
+  Bell,
+  Tomato
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -26,6 +36,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const { logout, user } = useAuth();
   const { toast } = useToast();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [hasNotifications, setHasNotifications] = useState(true);
+  const [notificationCount, setNotificationCount] = useState(3);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
     // Check if user has a dark mode preference
@@ -59,17 +72,56 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     });
   };
 
+  const showNotification = (message: string) => {
+    toast({
+      title: "Notification",
+      description: message,
+    });
+  };
+
+  const clearNotifications = () => {
+    setNotificationCount(0);
+    setHasNotifications(false);
+    toast({
+      title: "Notifications cleared",
+      description: "All notifications have been marked as read",
+    });
+    setNotificationsOpen(false);
+  };
+
+  // Sample notifications
+  const notifications = [
+    {
+      id: 1,
+      title: "Temperature Alert",
+      description: "Greenhouse temperature is above the threshold",
+      time: "2 hours ago"
+    },
+    {
+      id: 2,
+      title: "Watering Reminder",
+      description: "Tomatoes need watering today",
+      time: "3 hours ago"
+    },
+    {
+      id: 3,
+      title: "System Update",
+      description: "New system version available",
+      time: "5 hours ago"
+    }
+  ];
+
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
     { path: "/control", label: "Control", icon: <Sliders className="w-5 h-5" /> },
+    { path: "/crops", label: "Crops", icon: <Tomato className="w-5 h-5" /> },
     { path: "/greenhouse", label: "Greenhouse", icon: <Sprout className="w-5 h-5" /> },
     { path: "/weather", label: "Weather", icon: <Cloud className="w-5 h-5" /> },
-    { path: "/maintenance", label: "Maintenance", icon: <Calendar className="w-5 h-5" /> },
     { path: "/settings", label: "Settings", icon: <SettingsIcon className="w-5 h-5" /> },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-offwhite dark:bg-charcoal">
       {/* Header */}
       <header className="border-b bg-forest text-white shadow-sm">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -83,6 +135,59 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </div>
           
           <div className="flex items-center gap-3">
+            {/* Notification Icon */}
+            <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative rounded-full text-white hover:bg-forest/80"
+                >
+                  <Bell className="h-5 w-5" />
+                  {hasNotifications && (
+                    <Badge 
+                      className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-yellow text-foreground" 
+                      variant="outline"
+                    >
+                      {notificationCount}
+                    </Badge>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {notifications.length > 0 ? (
+                  <>
+                    {notifications.map((notification) => (
+                      <DropdownMenuItem 
+                        key={notification.id}
+                        className="flex flex-col items-start p-3 cursor-pointer"
+                        onClick={() => showNotification(notification.description)}
+                      >
+                        <div className="flex justify-between w-full">
+                          <span className="font-medium">{notification.title}</span>
+                          <span className="text-xs text-muted-foreground">{notification.time}</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">{notification.description}</span>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      className="justify-center text-center cursor-pointer" 
+                      onClick={clearNotifications}
+                    >
+                      Mark all as read
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <div className="p-4 text-center text-muted-foreground">
+                    No new notifications
+                  </div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
             <Button
               variant="ghost"
               size="icon"
@@ -96,28 +201,46 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               )}
             </Button>
             
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full text-white hover:bg-forest/80"
-            >
-              <UserCircle className="h-5 w-5" />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLogout}
-              className="rounded-full text-white hover:bg-forest/80"
-            >
-              <LogOut className="h-5 w-5" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full text-white hover:bg-forest/80"
+                >
+                  {user?.profileImageUrl ? (
+                    <img 
+                      src={user.profileImageUrl} 
+                      alt={user.name} 
+                      className="h-7 w-7 rounded-full object-cover"
+                    />
+                  ) : (
+                    <UserCircle className="h-5 w-5" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{user?.name || "User"}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem as={Link} to="/settings">
+                  My Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem as={Link} to="/greenhouse">
+                  My Greenhouse
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
       
       {/* Main Content */}
-      <main className="flex-grow bg-offwhite dark:bg-charcoal">
+      <main className="flex-grow">
         <div className="container mx-auto px-4 py-6">
           {children}
         </div>

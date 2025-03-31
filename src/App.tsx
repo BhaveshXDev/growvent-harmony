@@ -13,6 +13,8 @@ import Dashboard from "./pages/Dashboard";
 import ControlPanel from "./pages/ControlPanel";
 import Settings from "./pages/Settings";
 import GreenhouseProfile from "./pages/GreenhouseProfile";
+import Weather from "./pages/Weather";
+import Crops from "./pages/Crops";
 import NotFound from "./pages/NotFound";
 
 // Context
@@ -39,7 +41,7 @@ const App = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 4000); // Changed from 3000 to 4000 for 4-second duration
+    }, 4000); // 4-second duration
     
     return () => clearTimeout(timer);
   }, []);
@@ -99,6 +101,28 @@ const App = () => {
                     <ProtectedRoute>
                       <AppLayout>
                         <GreenhouseProfile />
+                      </AppLayout>
+                    </ProtectedRoute>
+                  } 
+                />
+
+                <Route 
+                  path="/weather" 
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <Weather />
+                      </AppLayout>
+                    </ProtectedRoute>
+                  } 
+                />
+
+                <Route 
+                  path="/crops" 
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <Crops />
                       </AppLayout>
                     </ProtectedRoute>
                   } 
