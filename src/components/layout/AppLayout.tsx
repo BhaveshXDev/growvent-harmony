@@ -10,7 +10,9 @@ import {
   LogOut, 
   UserCircle,
   SunMedium,
-  Moon
+  Moon,
+  Cloud,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -61,13 +63,15 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     { path: "/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
     { path: "/control", label: "Control", icon: <Sliders className="w-5 h-5" /> },
     { path: "/greenhouse", label: "Greenhouse", icon: <Sprout className="w-5 h-5" /> },
+    { path: "/weather", label: "Weather", icon: <Cloud className="w-5 h-5" /> },
+    { path: "/maintenance", label: "Maintenance", icon: <Calendar className="w-5 h-5" /> },
     { path: "/settings", label: "Settings", icon: <SettingsIcon className="w-5 h-5" /> },
   ];
 
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="border-b bg-card shadow-sm">
+      <header className="border-b bg-forest text-white shadow-sm">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <img 
@@ -75,7 +79,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               alt="VentiGrow Logo" 
               className="h-8"
             />
-            <h1 className="text-xl font-semibold text-ventisecondary-900">VentiGrow</h1>
+            <h1 className="text-xl font-semibold text-white">VentiGrow</h1>
           </div>
           
           <div className="flex items-center gap-3">
@@ -83,7 +87,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               variant="ghost"
               size="icon"
               onClick={toggleDarkMode}
-              className="rounded-full"
+              className="rounded-full text-white hover:bg-forest/80"
             >
               {isDarkMode ? (
                 <SunMedium className="h-5 w-5" />
@@ -95,7 +99,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full"
+              className="rounded-full text-white hover:bg-forest/80"
             >
               <UserCircle className="h-5 w-5" />
             </Button>
@@ -104,7 +108,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               variant="ghost"
               size="icon"
               onClick={handleLogout}
-              className="rounded-full"
+              className="rounded-full text-white hover:bg-forest/80"
             >
               <LogOut className="h-5 w-5" />
             </Button>
@@ -113,7 +117,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       </header>
       
       {/* Main Content */}
-      <main className="flex-grow">
+      <main className="flex-grow bg-offwhite dark:bg-charcoal">
         <div className="container mx-auto px-4 py-6">
           {children}
         </div>
@@ -125,7 +129,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       </footer>
       
       {/* Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg z-50">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-charcoal border-t shadow-lg z-50">
         <div className="flex justify-between px-6 py-2">
           {navItems.map((item) => (
             <Link
@@ -133,8 +137,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               to={item.path}
               className={`flex flex-col items-center py-1 px-3 rounded-lg ${
                 location.pathname === item.path
-                  ? "text-primary"
-                  : "text-muted-foreground"
+                  ? "text-forest font-medium"
+                  : "text-charcoal dark:text-softgray"
               }`}
             >
               {item.icon}

@@ -5,65 +5,65 @@
 
 @layer base {
   :root {
-    --background: 100 40% 98%;
-    --foreground: 100 10% 20%;
+    --background: 210 20% 98%; /* Off-White: #F8F9FA */
+    --foreground: 0 0% 20%; /* Dark Charcoal: #333333 */
 
     --card: 0 0% 100%;
-    --card-foreground: 100 10% 20%;
+    --card-foreground: 0 0% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 100 10% 20%;
+    --popover-foreground: 0 0% 20%;
 
-    --primary: 120 61% 40%;
-    --primary-foreground: 120 10% 98%;
+    --primary: 121 37% 28%; /* Forest Green: #2C5F2D */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 20 15% 54%;
-    --secondary-foreground: 120 10% 98%;
+    --secondary: 39 57% 53%; /* Warm Yellow: #F4A261 */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 100 10% 96%;
-    --muted-foreground: 100 10% 45%;
+    --muted: 0 0% 85%; /* Soft Gray: #D9D9D9 */
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 120 61% 95%;
-    --accent-foreground: 120 61% 30%;
+    --accent: 85 45% 57%; /* Lime Green: #A7C957 */
+    --accent-foreground: 120 61% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 100 10% 90%;
-    --input: 100 10% 90%;
-    --ring: 120 61% 40%;
+    --border: 0 0% 85%; /* Soft Gray for borders */
+    --input: 0 0% 85%;
+    --ring: 121 37% 28%; /* Forest Green for focus rings */
 
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 100 10% 10%;
-    --foreground: 100 10% 90%;
+    --background: 0 0% 20%; /* Dark Charcoal: #333333 */
+    --foreground: 210 20% 98%; /* Off-White: #F8F9FA */
 
-    --card: 100 10% 15%;
-    --card-foreground: 100 10% 90%;
+    --card: 0 0% 15%;
+    --card-foreground: 210 20% 98%;
 
-    --popover: 100 10% 15%;
-    --popover-foreground: 100 10% 90%;
+    --popover: 0 0% 15%;
+    --popover-foreground: 210 20% 98%;
 
-    --primary: 120 61% 40%;
+    --primary: 121 37% 28%; /* Forest Green: #2C5F2D */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 20 15% 40%;
+    --secondary: 39 57% 53%; /* Warm Yellow: #F4A261 */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 100 10% 20%;
-    --muted-foreground: 100 10% 70%;
+    --muted: 0 0% 25%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 120 61% 20%;
+    --accent: 85 45% 40%; /* Darker Lime Green for dark mode */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 100 10% 25%;
-    --input: 100 10% 25%;
-    --ring: 120 61% 40%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 121 37% 28%;
   }
 }
 

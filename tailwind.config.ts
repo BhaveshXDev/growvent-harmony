@@ -53,6 +53,7 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// New VentiGrow specific colors
 				ventiprimary: {
 					50: '#f0f9e8',
 					100: '#dcf1ca',
@@ -79,6 +80,15 @@ export default {
 					900: '#504541',
 					950: '#2b2422',
 				},
+				// New color scheme based on requirements
+				forest: '#2C5F2D',
+				lime: '#A7C957',
+				yellow: '#F4A261',
+				brown: '#8D6743',
+				skyblue: '#3A86FF',
+				softgray: '#D9D9D9',
+				offwhite: '#F8F9FA',
+				charcoal: '#333333',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

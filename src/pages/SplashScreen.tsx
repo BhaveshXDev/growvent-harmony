@@ -22,9 +22,7 @@ const SplashScreen = () => {
   }, []);
   
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-greenhouse bg-cover bg-center relative">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
-      
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-forest relative">
       <div className="relative flex flex-col items-center z-10">
         <div 
           className={`transform transition-all duration-1000 ease-out ${
@@ -48,7 +46,7 @@ const SplashScreen = () => {
           }`}
         >
           <h1 className="text-3xl font-bold text-white mb-2">VentiGrow</h1>
-          <p className="text-white/90 text-lg">
+          <p className="text-lime text-lg">
             Smart Agriculture Ventilation System
           </p>
         </div>
