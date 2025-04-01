@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -24,7 +23,9 @@ import {
   Wind, 
   Fan, 
   ArrowUp, 
-  ArrowDown
+  ArrowDown,
+  MapPin,
+  User
 } from "lucide-react";
 import { 
   LineChart, 
@@ -38,8 +39,8 @@ import {
   Bar,
   Legend,
 } from "recharts";
+import { useAuth } from "@/context/AuthContext";
 
-// Mock data for the dashboard
 const mockSensorData = {
   temperature: 27.5,
   humidity: 62,
@@ -74,10 +75,10 @@ const mockAlerts = [
 ];
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [fanSpeed, setFanSpeed] = useState(3);
   const [sensorData, setSensorData] = useState(mockSensorData);
   
-  // Simulate sensor data updates
   useEffect(() => {
     const interval = setInterval(() => {
       setSensorData({
@@ -102,7 +103,6 @@ const Dashboard = () => {
     }
   };
   
-  // Determine color for each metric
   const getMetricColor = (value: number, type: "temperature" | "humidity" | "co2") => {
     if (type === "temperature") {
       if (value < 18 || value > 30) return "text-red-500";
@@ -127,14 +127,29 @@ const Dashboard = () => {
   
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          {user && (
+            <div className="flex flex-col xs:flex-row xs:items-center gap-1 xs:gap-3 text-muted-foreground mt-1">
+              <div className="flex items-center">
+                <User className="h-4 w-4 mr-1" />
+                <span>{user.name}</span>
+              </div>
+              {user.location && (
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  <span>{user.location}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         <Button variant="outline" size="icon">
           <Bell className="h-4 w-4" />
         </Button>
       </div>
       
-      {/* Environmental Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
@@ -218,7 +233,6 @@ const Dashboard = () => {
         </Card>
       </div>
       
-      {/* Alerts Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -255,7 +269,6 @@ const Dashboard = () => {
         </CardContent>
       </Card>
       
-      {/* Fan Control Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -313,7 +326,6 @@ const Dashboard = () => {
         </CardContent>
       </Card>
       
-      {/* Energy Usage Section */}
       <Card>
         <CardHeader>
           <CardTitle>Energy Consumption</CardTitle>

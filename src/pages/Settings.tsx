@@ -1,495 +1,315 @@
 
-import { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UserCircle, Save } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { 
-  Save, 
-  Bell, 
-  Mail, 
-  MessageSquare, 
-  Thermometer, 
-  Droplets, 
-  Wind, 
-  UserCircle, 
-  Lock,
-  Image,
-  CalendarDays,
-  Activity
-} from "lucide-react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+// Form schema for validation
+const profileSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  gender: z.string().optional(),
+  mobile: z.string().regex(/^[0-9]{10}$/, "Mobile number must be 10 digits"),
+  password: z.string().min(6, "Password must be at least 6 characters").optional(),
+  confirmPassword: z.string().optional(),
+  location: z.string().min(5, "Address must be at least 5 characters"),
+}).refine((data) => {
+  if (data.password && !data.confirmPassword) return false;
+  if (!data.password && data.confirmPassword) return false;
+  if (data.password && data.confirmPassword && data.password !== data.confirmPassword) return false;
+  return true;
+}, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const Settings = () => {
+  const { user, updateProfile } = useAuth();
   const { toast } = useToast();
-  const [temperatureThreshold, setTemperatureThreshold] = useState([18, 27]);
-  const [humidityThreshold, setHumidityThreshold] = useState([40, 70]);
-  const [co2Threshold, setCo2Threshold] = useState([400, 800]);
-  
-  const [notifications, setNotifications] = useState({
-    app: true,
-    email: true,
-    sms: false,
+  const [isLoading, setIsLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(user?.profileImageUrl || null);
+
+  // Initialize form with user data
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      name: user?.name || "",
+      email: user?.email || "",
+      gender: "",
+      mobile: "",
+      password: "",
+      confirmPassword: "",
+      location: "",
+    },
   });
-  
-  const saveSettings = () => {
-    toast({
-      title: "Settings Saved",
-      description: "Your settings have been updated successfully.",
-    });
+
+  // Load user data when available
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name || "",
+        email: user.email || "",
+        gender: user.gender || "",
+        mobile: user.mobile || "",
+        location: user.location || "",
+        password: "",
+        confirmPassword: "",
+      });
+      
+      if (user.profileImageUrl) {
+        setProfileImagePreview(user.profileImageUrl);
+      }
+    }
+  }, [user, form]);
+
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProfileImage(file);
+      setProfileImagePreview(URL.createObjectURL(file));
+    }
   };
-  
+
+  const onSubmit = async (data: ProfileFormValues) => {
+    setIsLoading(true);
+    try {
+      // Update user profile
+      await updateProfile({
+        name: data.name,
+        email: data.email,
+        gender: data.gender,
+        mobile: data.mobile,
+        location: data.location,
+        // For a real app, you'd handle password update differently
+        // This is just for demonstration
+      });
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-forest">Settings</h1>
-      
-      <Tabs defaultValue="thresholds">
-        <TabsList className="w-full grid grid-cols-4 bg-softgray">
-          <TabsTrigger value="thresholds" className="data-[state=active]:bg-forest data-[state=active]:text-white">Environmental Thresholds</TabsTrigger>
-          <TabsTrigger value="notifications" className="data-[state=active]:bg-forest data-[state=active]:text-white">Notifications</TabsTrigger>
-          <TabsTrigger value="account" className="data-[state=active]:bg-forest data-[state=active]:text-white">Account Settings</TabsTrigger>
-          <TabsTrigger value="crops" className="data-[state=active]:bg-forest data-[state=active]:text-white">Crop Management</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="thresholds" className="space-y-4 mt-6">
-          <Card className="border-lime">
-            <CardHeader className="bg-forest text-white rounded-t-lg">
-              <CardTitle className="flex items-center">
-                <Thermometer className="mr-2 h-5 w-5 text-yellow" />
-                Temperature Thresholds
-              </CardTitle>
-              <CardDescription className="text-offwhite">
-                Set minimum and maximum acceptable temperature
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="font-medium">Min: {temperatureThreshold[0]}°C</span>
-                  <span className="font-medium">Max: {temperatureThreshold[1]}°C</span>
+      <h1 className="text-2xl font-bold">My Profile</h1>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Personal Information</CardTitle>
+          <CardDescription>
+            Update your personal details and preferences
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="flex flex-col items-center mb-6">
+                <div className="relative w-24 h-24 mb-4">
+                  {profileImagePreview ? (
+                    <img
+                      src={profileImagePreview}
+                      alt="Profile"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
+                      <UserCircle className="w-12 h-12 text-gray-400" />
+                    </div>
+                  )}
+                  <div className="absolute -bottom-2 -right-2">
+                    <Label
+                      htmlFor="profile-image"
+                      className="bg-forest text-white p-2 rounded-full cursor-pointer hover:bg-forest/90"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </Label>
+                    <Input
+                      id="profile-image"
+                      type="file"
+                      className="hidden"
+                      onChange={handleProfileImageChange}
+                      accept="image/*"
+                    />
+                  </div>
                 </div>
-                <Slider
-                  value={temperatureThreshold}
-                  min={10}
-                  max={35}
-                  step={1}
-                  onValueChange={setTemperatureThreshold}
-                  className="[&_[role=slider]]:bg-forest"
-                />
-                <p className="text-sm text-muted-foreground">
-                  System will alert when temperature is outside this range
-                </p>
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-lime">
-            <CardHeader className="bg-forest text-white rounded-t-lg">
-              <CardTitle className="flex items-center">
-                <Droplets className="mr-2 h-5 w-5 text-skyblue" />
-                Humidity Thresholds
-              </CardTitle>
-              <CardDescription className="text-offwhite">
-                Set minimum and maximum acceptable humidity
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="font-medium">Min: {humidityThreshold[0]}%</span>
-                  <span className="font-medium">Max: {humidityThreshold[1]}%</span>
-                </div>
-                <Slider
-                  value={humidityThreshold}
-                  min={20}
-                  max={90}
-                  step={5}
-                  onValueChange={setHumidityThreshold}
-                  className="[&_[role=slider]]:bg-forest"
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                <p className="text-sm text-muted-foreground">
-                  System will alert when humidity is outside this range
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-lime">
-            <CardHeader className="bg-forest text-white rounded-t-lg">
-              <CardTitle className="flex items-center">
-                <Wind className="mr-2 h-5 w-5 text-softgray" />
-                CO2 Thresholds
-              </CardTitle>
-              <CardDescription className="text-offwhite">
-                Set minimum and maximum acceptable CO2 levels
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="font-medium">Min: {co2Threshold[0]} ppm</span>
-                  <span className="font-medium">Max: {co2Threshold[1]} ppm</span>
-                </div>
-                <Slider
-                  value={co2Threshold}
-                  min={300}
-                  max={1500}
-                  step={50}
-                  onValueChange={setCo2Threshold}
-                  className="[&_[role=slider]]:bg-forest"
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <Input placeholder="john@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                <p className="text-sm text-muted-foreground">
-                  System will alert when CO2 level is outside this range
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <div className="flex justify-end">
-            <Button 
-              variant="default" 
-              className="bg-forest hover:bg-forest/90 text-white"
-              onClick={saveSettings}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              Save Thresholds
-            </Button>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="notifications" className="space-y-4 mt-6">
-          <Card className="border-lime">
-            <CardHeader className="bg-forest text-white rounded-t-lg">
-              <CardTitle>Alert Preferences</CardTitle>
-              <CardDescription className="text-offwhite">
-                Choose how you want to receive alerts and notifications
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Bell className="h-5 w-5 text-yellow" />
-                  <Label htmlFor="app-notifications">App Notifications</Label>
-                </div>
-                <Switch
-                  id="app-notifications"
-                  checked={notifications.app}
-                  onCheckedChange={(checked) => 
-                    setNotifications({ ...notifications, app: checked })
-                  }
-                  className="data-[state=checked]:bg-forest"
+
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gender</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Mail className="h-5 w-5 text-skyblue" />
-                  <Label htmlFor="email-notifications">Email Alerts</Label>
-                </div>
-                <Switch
-                  id="email-notifications"
-                  checked={notifications.email}
-                  onCheckedChange={(checked) => 
-                    setNotifications({ ...notifications, email: checked })
-                  }
-                  className="data-[state=checked]:bg-forest"
+
+                <FormField
+                  control={form.control}
+                  name="mobile"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mobile Number</FormLabel>
+                      <FormControl>
+                        <div className="flex">
+                          <div className="flex items-center px-3 bg-muted rounded-l-md border border-r-0">
+                            +91
+                          </div>
+                          <Input
+                            className="rounded-l-none"
+                            placeholder="9876543210"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <MessageSquare className="h-5 w-5 text-brown" />
-                  <Label htmlFor="sms-notifications">SMS Notifications</Label>
-                </div>
-                <Switch
-                  id="sms-notifications"
-                  checked={notifications.sms}
-                  onCheckedChange={(checked) => 
-                    setNotifications({ ...notifications, sms: checked })
-                  }
-                  className="data-[state=checked]:bg-forest"
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              
-              {notifications.sms && (
-                <div className="space-y-2 pt-2">
-                  <Label htmlFor="phone-number">Phone Number</Label>
-                  <Input 
-                    id="phone-number" 
-                    placeholder="+1 (555) 123-4567" 
-                    type="tel" 
-                    className="border-softgray focus:border-forest"
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="md:col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Location</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Your address"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-              )}
-            </CardContent>
-            <CardFooter className="flex justify-end">
-              <Button 
-                variant="default" 
-                className="bg-forest hover:bg-forest/90 text-white"
-                onClick={saveSettings}
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Save Preferences
+              </div>
+
+              <Button type="submit" className="w-full bg-forest hover:bg-forest/90" disabled={isLoading}>
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Changes
+                  </span>
+                )}
               </Button>
-            </CardFooter>
-          </Card>
-          
-          <Card className="border-lime">
-            <CardHeader className="bg-forest text-white rounded-t-lg">
-              <CardTitle>Alert Types</CardTitle>
-              <CardDescription className="text-offwhite">
-                Select which types of alerts you want to receive
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-6">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="critical-alerts">Critical Alerts</Label>
-                <Switch id="critical-alerts" defaultChecked className="data-[state=checked]:bg-forest" />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="warning-alerts">Warning Alerts</Label>
-                <Switch id="warning-alerts" defaultChecked className="data-[state=checked]:bg-forest" />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="system-alerts">System Notifications</Label>
-                <Switch id="system-alerts" defaultChecked className="data-[state=checked]:bg-forest" />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="maintenance-alerts">Maintenance Reminders</Label>
-                <Switch id="maintenance-alerts" defaultChecked className="data-[state=checked]:bg-forest" />
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end">
-              <Button 
-                variant="default" 
-                className="bg-forest hover:bg-forest/90 text-white"
-                onClick={saveSettings}
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Save Alert Types
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="account" className="space-y-4 mt-6">
-          <Card className="border-lime">
-            <CardHeader className="bg-forest text-white rounded-t-lg">
-              <CardTitle className="flex items-center">
-                <UserCircle className="mr-2 h-5 w-5 text-softgray" />
-                Account Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-6">
-              <div className="space-y-2">
-                <Label htmlFor="account-name">Full Name</Label>
-                <Input id="account-name" defaultValue="John Doe" className="border-softgray focus:border-forest" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="account-email">Email Address</Label>
-                <Input id="account-email" defaultValue="john.doe@example.com" type="email" className="border-softgray focus:border-forest" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="account-organization">Organization</Label>
-                <Input id="account-organization" defaultValue="Green Valley Farms" className="border-softgray focus:border-forest" />
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end">
-              <Button 
-                variant="default" 
-                className="bg-forest hover:bg-forest/90 text-white"
-                onClick={saveSettings}
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Update Account
-              </Button>
-            </CardFooter>
-          </Card>
-          
-          <Card className="border-lime">
-            <CardHeader className="bg-forest text-white rounded-t-lg">
-              <CardTitle className="flex items-center">
-                <Lock className="mr-2 h-5 w-5 text-yellow" />
-                Security
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-6">
-              <div className="space-y-2">
-                <Label htmlFor="current-password">Current Password</Label>
-                <Input id="current-password" type="password" className="border-softgray focus:border-forest" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="new-password">New Password</Label>
-                <Input id="new-password" type="password" className="border-softgray focus:border-forest" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirm New Password</Label>
-                <Input id="confirm-password" type="password" className="border-softgray focus:border-forest" />
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end">
-              <Button 
-                variant="default" 
-                className="bg-forest hover:bg-forest/90 text-white"
-                onClick={saveSettings}
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Update Password
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="crops" className="space-y-4 mt-6">
-          <Card className="border-lime">
-            <CardHeader className="bg-forest text-white rounded-t-lg">
-              <CardTitle className="flex items-center">
-                <Image className="mr-2 h-5 w-5 text-lime" />
-                Crop Management
-              </CardTitle>
-              <CardDescription className="text-offwhite">
-                Manage your crop details and preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center p-3 border rounded-md border-softgray hover:border-forest transition-colors">
-                  <img src="/lovable-uploads/203a9937-10dc-42a1-b2f6-13869979ad1e.png" alt="Tomato" className="w-12 h-12 object-contain mr-3" />
-                  <div>
-                    <h3 className="font-medium">Tomato</h3>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <CalendarDays className="h-3 w-3 mr-1" />
-                      <span>Planted: May 15, 2025</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center p-3 border rounded-md border-softgray hover:border-forest transition-colors">
-                  <img src="/lovable-uploads/fefd23d2-e29a-4431-9d00-8119cb1230ad.png" alt="Strawberry" className="w-12 h-12 object-contain mr-3" />
-                  <div>
-                    <h3 className="font-medium">Strawberry</h3>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <CalendarDays className="h-3 w-3 mr-1" />
-                      <span>Planted: June 10, 2025</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center p-3 border rounded-md border-softgray hover:border-forest transition-colors">
-                  <img src="/lovable-uploads/38497399-1980-4690-97e3-13e7b3b81ff2.png" alt="Cucumber" className="w-12 h-12 object-contain mr-3" />
-                  <div>
-                    <h3 className="font-medium">Cucumber</h3>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <CalendarDays className="h-3 w-3 mr-1" />
-                      <span>Planted: April 22, 2025</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center p-3 border rounded-md border-softgray hover:border-forest transition-colors">
-                  <img src="/lovable-uploads/a94d2dcd-0de1-40ef-91dc-b40b0602e0ce.png" alt="Chili Peppers" className="w-12 h-12 object-contain mr-3" />
-                  <div>
-                    <h3 className="font-medium">Chili Peppers</h3>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <CalendarDays className="h-3 w-3 mr-1" />
-                      <span>Planted: March 30, 2025</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <Button className="bg-lime hover:bg-lime/90 text-charcoal w-full">
-                  + Add New Crop
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-lime">
-            <CardHeader className="bg-forest text-white rounded-t-lg">
-              <CardTitle className="flex items-center">
-                <Activity className="mr-2 h-5 w-5 text-yellow" />
-                Crop Growth Tracking
-              </CardTitle>
-              <CardDescription className="text-offwhite">
-                Monitor your crop growth stages
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium">Tomato Growth</span>
-                    <span className="text-sm text-muted-foreground">75%</span>
-                  </div>
-                  <div className="h-2 bg-softgray rounded-full">
-                    <div className="h-2 bg-forest rounded-full" style={{ width: '75%' }}></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium">Strawberry Growth</span>
-                    <span className="text-sm text-muted-foreground">45%</span>
-                  </div>
-                  <div className="h-2 bg-softgray rounded-full">
-                    <div className="h-2 bg-yellow rounded-full" style={{ width: '45%' }}></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium">Cucumber Growth</span>
-                    <span className="text-sm text-muted-foreground">90%</span>
-                  </div>
-                  <div className="h-2 bg-softgray rounded-full">
-                    <div className="h-2 bg-lime rounded-full" style={{ width: '90%' }}></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium">Chili Peppers Growth</span>
-                    <span className="text-sm text-muted-foreground">60%</span>
-                  </div>
-                  <div className="h-2 bg-softgray rounded-full">
-                    <div className="h-2 bg-brown rounded-full" style={{ width: '60%' }}></div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end">
-              <Button 
-                variant="default" 
-                className="bg-forest hover:bg-forest/90 text-white"
-                onClick={saveSettings}
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Update Growth Data
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

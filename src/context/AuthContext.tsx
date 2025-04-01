@@ -6,6 +6,9 @@ interface User {
   email: string;
   name: string;
   profileImageUrl?: string;
+  gender?: string;
+  mobile?: string;
+  location?: string;
 }
 
 interface AuthContextType {
@@ -56,6 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         id: "user123",
         email,
         name: email.split("@")[0],
+        location: "Bangalore, India",
       };
       
       // Save user to state and localStorage
@@ -89,6 +93,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         name,
         profileImageUrl,
+        location: "Bangalore, India",
       };
       
       // Save user to state and localStorage

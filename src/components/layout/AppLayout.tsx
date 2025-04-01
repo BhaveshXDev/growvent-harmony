@@ -220,9 +220,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 <DropdownMenuItem>
                   <Link to="/settings" className="w-full">My Profile</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link to="/greenhouse" className="w-full">My Greenhouse</Link>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="h-4 w-4 mr-2" />
@@ -245,12 +242,12 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       </footer>
       
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-charcoal border-t shadow-lg z-50">
-        <div className="flex justify-between px-6 py-2">
+        <div className="flex justify-between px-2 py-2">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center py-1 px-3 rounded-lg ${
+              className={`flex flex-col items-center py-1 px-2 rounded-lg ${
                 location.pathname === item.path
                   ? "text-forest font-medium"
                   : "text-charcoal dark:text-softgray"
