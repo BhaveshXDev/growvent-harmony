@@ -18,7 +18,6 @@ const Crops = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [isAddCropOpen, setIsAddCropOpen] = useState(false);
   
-  // Mock data for crops
   const crops = [
     {
       id: 1,
@@ -94,7 +93,6 @@ const Crops = () => {
     },
   ];
 
-  // Define growth stages with their color codes
   const growthStageColors: Record<string, string> = {
     "Seedling": "bg-lime-500",
     "Vegetative": "bg-green-500",
@@ -207,7 +205,7 @@ const Crops = () => {
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div className="flex items-center gap-2">
-                          <SeedingIcon className="h-4 w-4 text-forest" />
+                          <Leaf className="h-4 w-4 text-forest" />
                           <span>Planted: {new Date(crop.plantedDate).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -235,7 +233,6 @@ const Crops = () => {
         </TabsContent>
       </Tabs>
 
-      {/* View Crop Details Dialog */}
       <Dialog open={viewCropDetails} onOpenChange={setViewCropDetails}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           {selectedCrop && (
@@ -255,7 +252,6 @@ const Crops = () => {
               </DialogHeader>
 
               <div className="space-y-6">
-                {/* Growth Stage */}
                 <div className="space-y-2">
                   <h3 className="font-medium">Growth Stage</h3>
                   <div>
@@ -267,11 +263,9 @@ const Crops = () => {
                   </div>
                 </div>
 
-                {/* Care Schedule */}
                 <div className="space-y-4">
                   <h3 className="font-medium">Care Schedule</h3>
                   
-                  {/* Watering */}
                   <Card>
                     <CardHeader className="py-3">
                       <CardTitle className="text-base flex items-center">
@@ -302,7 +296,6 @@ const Crops = () => {
                     </CardFooter>
                   </Card>
 
-                  {/* Pruning */}
                   <Card>
                     <CardHeader className="py-3">
                       <CardTitle className="text-base flex items-center">
@@ -333,7 +326,6 @@ const Crops = () => {
                     </CardFooter>
                   </Card>
 
-                  {/* Fertilization */}
                   <Card>
                     <CardHeader className="py-3">
                       <CardTitle className="text-base flex items-center">
@@ -370,7 +362,6 @@ const Crops = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Add New Crop Dialog */}
       <Dialog open={isAddCropOpen} onOpenChange={setIsAddCropOpen}>
         <DialogContent>
           <DialogHeader>
