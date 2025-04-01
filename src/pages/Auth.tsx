@@ -515,7 +515,7 @@ const Auth = () => {
                       onClick={() => handleSocialLogin("Google")}
                       disabled={isLoading}
                     >
-                      <Google className="h-4 w-4" />
+                      <Mail className="h-4 w-4" />
                     </Button>
                     <Button 
                       type="button" 
@@ -525,13 +525,13 @@ const Auth = () => {
                     >
                       <Facebook className="h-4 w-4" />
                     </Button>
-{/*                     <Button 
+                    <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => handleSocialLogin("GitHub")}
                       disabled={isLoading}
                     >
-                      <Github className="h-4 w-4" /> */}
+                      <Github className="h-4 w-4" />
                     </Button>
                   </div>
                 </CardFooter>
