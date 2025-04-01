@@ -150,9 +150,9 @@ const Weather = () => {
       <h1 className="text-2xl font-bold mb-6">Weather Forecast</h1>
       
       {error && (
-        <AlertComponent variant="warning" className="mb-4">
+        <AlertComponent variant="default" className="mb-4">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Warning</AlertTitle>
+          <AlertTitle>Note</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </AlertComponent>
       )}
