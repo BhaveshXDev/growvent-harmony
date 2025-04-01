@@ -218,7 +218,7 @@ const Auth = () => {
                     <Input 
                       id="email" 
                       type="email" 
-                      placeholder="your.email@example.com" 
+                      placeholder="Enter Your Email" 
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       disabled={isLoading}
@@ -413,7 +413,7 @@ const Auth = () => {
                         id="mobile" 
                         type="tel" 
                         className="rounded-l-none"
-                        placeholder="9876543210" 
+                        placeholder="xxxxxxxxxx" 
                         value={mobileNumber}
                         onChange={(e) => {
                           // Only allow digits
@@ -526,12 +526,12 @@ const Auth = () => {
                     >
                       <Facebook className="h-4 w-4" />
                     </Button>
-                    <Button 
+{/*                     <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => handleSocialLogin("GitHub")}
                       disabled={isLoading}
-                    >
+                    > */}
                       <Github className="h-4 w-4" />
                     </Button>
                   </div>
