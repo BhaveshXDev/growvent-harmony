@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon, ChevronDown, Droplets, Plus, Scissors, SeedingIcon } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronDown, Droplets, Plus, Scissors, Leaf } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -338,7 +337,7 @@ const Crops = () => {
                   <Card>
                     <CardHeader className="py-3">
                       <CardTitle className="text-base flex items-center">
-                        <SeedingIcon className="h-5 w-5 text-green-500 mr-2" />
+                        <Leaf className="h-5 w-5 text-green-500 mr-2" />
                         Fertilization
                       </CardTitle>
                     </CardHeader>

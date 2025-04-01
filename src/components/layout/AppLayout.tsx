@@ -13,7 +13,7 @@ import {
   Moon,
   Cloud,
   Bell,
-  Tomato
+  Fruit
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -114,7 +114,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
     { path: "/control", label: "Control", icon: <Sliders className="w-5 h-5" /> },
-    { path: "/crops", label: "Crops", icon: <Tomato className="w-5 h-5" /> },
+    { path: "/crops", label: "Crops", icon: <Fruit className="w-5 h-5" /> },
     { path: "/greenhouse", label: "Greenhouse", icon: <Sprout className="w-5 h-5" /> },
     { path: "/weather", label: "Weather", icon: <Cloud className="w-5 h-5" /> },
     { path: "/settings", label: "Settings", icon: <SettingsIcon className="w-5 h-5" /> },
@@ -222,11 +222,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>{user?.name || "User"}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem as={Link} to="/settings">
-                  My Profile
+                <DropdownMenuItem>
+                  <Link to="/settings" className="w-full">My Profile</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem as={Link} to="/greenhouse">
-                  My Greenhouse
+                <DropdownMenuItem>
+                  <Link to="/greenhouse" className="w-full">My Greenhouse</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
