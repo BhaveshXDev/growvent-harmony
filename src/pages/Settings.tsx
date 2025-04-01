@@ -143,7 +143,7 @@ const Settings = () => {
                       htmlFor="profile-image"
                       className="bg-forest text-white p-2 rounded-full cursor-pointer hover:bg-forest/90"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+{/*                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> */}
                     </Label>
                     <Input
                       id="profile-image"
@@ -164,7 +164,7 @@ const Settings = () => {
                     <FormItem>
                       <FormLabel>Full Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder="Enter Your Name" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -178,7 +178,7 @@ const Settings = () => {
                     <FormItem>
                       <FormLabel>Email Address</FormLabel>
                       <FormControl>
-                        <Input placeholder="john@example.com" {...field} />
+                        <Input placeholder="Enter Your Email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -224,7 +224,7 @@ const Settings = () => {
                           </div>
                           <Input
                             className="rounded-l-none"
-                            placeholder="9876543210"
+                            placeholder="xxxxxxxxxx"
                             {...field}
                           />
                         </div>
