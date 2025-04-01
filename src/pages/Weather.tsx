@@ -305,7 +305,7 @@ const Weather = () => {
 const mockWeatherData: WeatherData = {
   location: {
     name: "Nashik",
-    state: "Maharashtra",
+    region: "Maharashtra",
     country: "India"
   },
   current: {
