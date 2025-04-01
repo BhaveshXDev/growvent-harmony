@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -526,12 +525,12 @@ const Auth = () => {
                     >
                       <Facebook className="h-4 w-4" />
                     </Button>
-{/*                     <Button 
+                    <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => handleSocialLogin("GitHub")}
                       disabled={isLoading}
-                    > */}
+                    >
                       <Github className="h-4 w-4" />
                     </Button>
                   </div>
