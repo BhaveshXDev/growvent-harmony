@@ -27,7 +27,7 @@ const GreenhouseProfile = () => {
           <h1 className="text-3xl font-bold text-white">Main Greenhouse</h1>
           <div className="flex items-center mt-2 text-white/80">
             <MapPin className="h-4 w-4 mr-1" />
-            <span>Green Valley Farm, California</span>
+            <span>Green Valley Farm, Nashik</span>
           </div>
         </div>
       </div>
@@ -42,17 +42,17 @@ const GreenhouseProfile = () => {
               <div className="flex justify-between">
                 <div className="flex items-center text-muted-foreground">
                   <Ruler className="h-4 w-4 mr-2" />
-                  <span>Dimensions</span>
+                  <span>Area</span>
                 </div>
-                <span className="font-medium">30m x 15m</span>
+                <span className="font-medium">2000sqft</span>
               </div>
               
               <div className="flex justify-between">
                 <div className="flex items-center text-muted-foreground">
-                  <span className="mr-2">🏗️</span>
-                  <span>Structure Type</span>
+{/*                   <span className="mr-2">🏗️</span> */}
+{/*                   <span>Structure Type</span> */}
                 </div>
-                <span className="font-medium">Tunnel</span>
+{/*                 <span className="font-medium">Tunnel</span> */}
               </div>
               
               <div className="flex justify-between">
@@ -60,15 +60,15 @@ const GreenhouseProfile = () => {
                   <Calendar className="h-4 w-4 mr-2" />
                   <span>Built Date</span>
                 </div>
-                <span className="font-medium">March 2023</span>
+                <span className="font-medium">March 2024</span>
               </div>
               
               <div className="flex justify-between">
                 <div className="flex items-center text-muted-foreground">
-                  <span className="mr-2">💰</span>
-                  <span>Monthly Cost</span>
+{/*                   <span className="mr-2">💰</span> */}
+{/*                   <span>Monthly Cost</span> */}
                 </div>
-                <span className="font-medium">$450</span>
+{/*                 <span className="font-medium">$450</span> */}
               </div>
             </div>
           </CardContent>
@@ -140,7 +140,7 @@ const GreenhouseProfile = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Sprout className="h-4 w-4 mr-2 text-ventiprimary-500" />
-                  <span>Bell Peppers</span>
+                  <span>Chilli</span>
                 </div>
                 <span className="text-sm">Zone 2</span>
               </div>
@@ -156,7 +156,7 @@ const GreenhouseProfile = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Sprout className="h-4 w-4 mr-2 text-ventiprimary-500" />
-                  <span>Lettuce</span>
+                  <span>Strawberry</span>
                 </div>
                 <span className="text-sm">Zone 4</span>
               </div>
@@ -182,7 +182,7 @@ const GreenhouseProfile = () => {
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-sm font-medium">July 10, 2025</span>
+                <span className="text-sm font-medium">feb 10, 2025</span>
                 <p className="text-xs text-muted-foreground">Technician: Mike Johnson</p>
               </div>
             </div>
@@ -197,7 +197,7 @@ const GreenhouseProfile = () => {
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-sm font-medium">June 22, 2025</span>
+                <span className="text-sm font-medium">March 22, 2025</span>
                 <p className="text-xs text-muted-foreground">Technician: Sarah Miller</p>
               </div>
             </div>
@@ -212,7 +212,7 @@ const GreenhouseProfile = () => {
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-sm font-medium">May 15, 2025</span>
+                <span className="text-sm font-medium">March 25, 2025</span>
                 <p className="text-xs text-muted-foreground">Technician: Robert Davis</p>
               </div>
             </div>
