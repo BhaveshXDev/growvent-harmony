@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -13,7 +12,7 @@ import {
   Moon,
   Cloud,
   Bell,
-  Fruit
+  Apple
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -41,7 +40,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
-    // Check if user has a dark mode preference
     const isDark = localStorage.getItem("ventiGrowDarkMode") === "true";
     setIsDarkMode(isDark);
     
@@ -89,7 +87,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     setNotificationsOpen(false);
   };
 
-  // Sample notifications
   const notifications = [
     {
       id: 1,
@@ -114,7 +111,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
     { path: "/control", label: "Control", icon: <Sliders className="w-5 h-5" /> },
-    { path: "/crops", label: "Crops", icon: <Fruit className="w-5 h-5" /> },
+    { path: "/crops", label: "Crops", icon: <Apple className="w-5 h-5" /> },
     { path: "/greenhouse", label: "Greenhouse", icon: <Sprout className="w-5 h-5" /> },
     { path: "/weather", label: "Weather", icon: <Cloud className="w-5 h-5" /> },
     { path: "/settings", label: "Settings", icon: <SettingsIcon className="w-5 h-5" /> },
@@ -122,7 +119,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-offwhite dark:bg-charcoal">
-      {/* Header */}
       <header className="border-b bg-forest text-white shadow-sm">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -135,7 +131,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </div>
           
           <div className="flex items-center gap-3">
-            {/* Notification Icon */}
             <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -239,19 +234,16 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
       </header>
       
-      {/* Main Content */}
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-6">
           {children}
         </div>
       </main>
       
-      {/* Footer - Copyright */}
       <footer className="bg-card border-t py-4 text-center text-sm text-muted-foreground">
         © 2025 VentiGrow. All rights reserved.
       </footer>
       
-      {/* Bottom Navigation */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-charcoal border-t shadow-lg z-50">
         <div className="flex justify-between px-6 py-2">
           {navItems.map((item) => (
