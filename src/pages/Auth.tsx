@@ -376,7 +376,7 @@ const Auth = () => {
                     <Input 
                       id="signup-email" 
                       type="email" 
-                      placeholder="your.email@example.com" 
+                      placeholder="Enter Your Email" 
                       value={signupEmail}
                       onChange={(e) => setSignupEmail(e.target.value)}
                       disabled={isLoading}
@@ -515,7 +515,7 @@ const Auth = () => {
                       onClick={() => handleSocialLogin("Google")}
                       disabled={isLoading}
                     >
-                      <Mail className="h-4 w-4" />
+                      <Google className="h-4 w-4" />
                     </Button>
                     <Button 
                       type="button" 
@@ -525,13 +525,13 @@ const Auth = () => {
                     >
                       <Facebook className="h-4 w-4" />
                     </Button>
-                    <Button 
+{/*                     <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => handleSocialLogin("GitHub")}
                       disabled={isLoading}
                     >
-                      <Github className="h-4 w-4" />
+                      <Github className="h-4 w-4" /> */}
                     </Button>
                   </div>
                 </CardFooter>
