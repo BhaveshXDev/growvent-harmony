@@ -304,9 +304,9 @@ const Weather = () => {
 // Mock weather data for development
 const mockWeatherData: WeatherData = {
   location: {
-    name: "New York",
-    region: "New York",
-    country: "United States of America"
+    name: "Nashik",
+    state: "Maharashtra",
+    country: "India"
   },
   current: {
     temp_c: 22.5,
@@ -324,7 +324,7 @@ const mockWeatherData: WeatherData = {
   forecast: {
     forecastday: [
       {
-        date: "2023-06-01",
+        date: "2025-01-04",
         day: {
           maxtemp_c: 26.3,
           mintemp_c: 17.2,
@@ -335,7 +335,7 @@ const mockWeatherData: WeatherData = {
         },
         hour: [
           {
-            time: "2023-06-01 00:00",
+            time: "2025-01-04 00:00",
             temp_c: 18.5,
             condition: {
               text: "Clear",
@@ -343,7 +343,7 @@ const mockWeatherData: WeatherData = {
             }
           },
           {
-            time: "2023-06-01 03:00",
+            time: "2025-01-04 03:00",
             temp_c: 17.8,
             condition: {
               text: "Clear",
@@ -351,7 +351,7 @@ const mockWeatherData: WeatherData = {
             }
           },
           {
-            time: "2023-06-01 06:00",
+            time: "2025-01-04 06:00",
             temp_c: 17.2,
             condition: {
               text: "Clear",
@@ -359,7 +359,7 @@ const mockWeatherData: WeatherData = {
             }
           },
           {
-            time: "2023-06-01 09:00",
+            time: "2025-01-04 09:00",
             temp_c: 20.1,
             condition: {
               text: "Sunny",
@@ -367,7 +367,7 @@ const mockWeatherData: WeatherData = {
             }
           },
           {
-            time: "2023-06-01 12:00",
+            time: "2025-01-04 12:00",
             temp_c: 23.4,
             condition: {
               text: "Sunny",
@@ -375,7 +375,7 @@ const mockWeatherData: WeatherData = {
             }
           },
           {
-            time: "2023-06-01 15:00",
+            time: "2025-01-04 15:00",
             temp_c: 25.7,
             condition: {
               text: "Sunny",
@@ -383,7 +383,7 @@ const mockWeatherData: WeatherData = {
             }
           },
           {
-            time: "2023-06-01 18:00",
+            time: "2025-01-04 18:00",
             temp_c: 24.2,
             condition: {
               text: "Partly cloudy",
@@ -391,7 +391,7 @@ const mockWeatherData: WeatherData = {
             }
           },
           {
-            time: "2023-06-01 21:00",
+            time: "2025-01-04 21:00",
             temp_c: 20.8,
             condition: {
               text: "Partly cloudy",
@@ -401,7 +401,7 @@ const mockWeatherData: WeatherData = {
         ]
       },
       {
-        date: "2023-06-02",
+        date: "2025-01-04",
         day: {
           maxtemp_c: 28.1,
           mintemp_c: 18.4,
@@ -411,7 +411,7 @@ const mockWeatherData: WeatherData = {
           }
         },
         hour: Array(24).fill({
-          time: "2023-06-02 12:00",
+          time: "2025-01-04 12:00",
           temp_c: 24.5,
           condition: {
             text: "Partly cloudy",
@@ -420,7 +420,7 @@ const mockWeatherData: WeatherData = {
         })
       },
       {
-        date: "2023-06-03",
+        date: "2025-01-04",
         day: {
           maxtemp_c: 27.5,
           mintemp_c: 19.2,
@@ -430,7 +430,7 @@ const mockWeatherData: WeatherData = {
           }
         },
         hour: Array(24).fill({
-          time: "2023-06-03 12:00",
+          time: "2025-01-04 12:00",
           temp_c: 25.0,
           condition: {
             text: "Cloudy",
@@ -439,7 +439,7 @@ const mockWeatherData: WeatherData = {
         })
       },
       {
-        date: "2023-06-04",
+        date: "2025-01-04",
         day: {
           maxtemp_c: 24.8,
           mintemp_c: 18.5,
@@ -449,7 +449,7 @@ const mockWeatherData: WeatherData = {
           }
         },
         hour: Array(24).fill({
-          time: "2023-06-04 12:00",
+          time: "2025-01-04 12:00",
           temp_c: 22.0,
           condition: {
             text: "Rain",
@@ -458,7 +458,7 @@ const mockWeatherData: WeatherData = {
         })
       },
       {
-        date: "2023-06-05",
+        date: "2025-01-05",
         day: {
           maxtemp_c: 23.1,
           mintemp_c: 17.9,
@@ -468,7 +468,7 @@ const mockWeatherData: WeatherData = {
           }
         },
         hour: Array(24).fill({
-          time: "2023-06-05 12:00",
+          time: "2025-01-0512:00",
           temp_c: 21.5,
           condition: {
             text: "Light rain",
@@ -477,7 +477,7 @@ const mockWeatherData: WeatherData = {
         })
       },
       {
-        date: "2023-06-06",
+        date: "2025-02-04",
         day: {
           maxtemp_c: 25.2,
           mintemp_c: 18.1,
@@ -496,7 +496,7 @@ const mockWeatherData: WeatherData = {
         })
       },
       {
-        date: "2023-06-07",
+        date: "2025-02-07",
         day: {
           maxtemp_c: 26.7,
           mintemp_c: 19.3,
@@ -506,7 +506,7 @@ const mockWeatherData: WeatherData = {
           }
         },
         hour: Array(24).fill({
-          time: "2023-06-07 12:00",
+          time: "2025-03-07 12:00",
           temp_c: 25.5,
           condition: {
             text: "Sunny",
