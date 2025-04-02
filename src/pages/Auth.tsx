@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Loader2, Upload, Mail, Facebook, Github } from "lucide-react";
+import { Eye, EyeOff, Loader2, Upload, Mail, Facebook } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,11 +23,9 @@ const Auth = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   
-  // Login form state
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   
-  // Signup form state
   const [signupName, setSignupName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
@@ -132,7 +130,6 @@ const Auth = () => {
     
     try {
       setIsLoading(true);
-      // Simulate password reset email sending
       await new Promise(resolve => setTimeout(resolve, 1000));
       toast({
         title: "Reset Email Sent",
@@ -168,7 +165,6 @@ const Auth = () => {
   const handleSocialLogin = (provider: string) => {
     setIsLoading(true);
     
-    // Simulate social login
     setTimeout(() => {
       toast({
         title: "Social Login",
@@ -176,7 +172,6 @@ const Auth = () => {
       });
       setIsLoading(false);
       
-      // For demo, we'll just log in the user after a delay
       setTimeout(() => {
         navigate("/dashboard");
       }, 1500);
@@ -289,30 +284,28 @@ const Auth = () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => handleSocialLogin("Google")}
                       disabled={isLoading}
+                      className="flex items-center justify-center gap-2"
                     >
-                      <Mail className="h-4 w-4" />
+                      <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 488 512">
+                        <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" fill="#4285f4"/>
+                      </svg>
+                      Google
                     </Button>
                     <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => handleSocialLogin("Facebook")}
                       disabled={isLoading}
+                      className="flex items-center justify-center gap-2"
                     >
                       <Facebook className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => handleSocialLogin("GitHub")}
-                      disabled={isLoading}
-                    >
-                      <Github className="h-4 w-4" />
+                      Facebook
                     </Button>
                   </div>
                 </CardFooter>
@@ -415,7 +408,6 @@ const Auth = () => {
                         placeholder="xxxxxxxxxx" 
                         value={mobileNumber}
                         onChange={(e) => {
-                          // Only allow digits
                           const value = e.target.value.replace(/\D/g, '');
                           setMobileNumber(value);
                         }}
@@ -508,30 +500,28 @@ const Auth = () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => handleSocialLogin("Google")}
                       disabled={isLoading}
+                      className="flex items-center justify-center gap-2"
                     >
-                      <Mail className="h-4 w-4" />
+                      <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 488 512">
+                        <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" fill="#4285f4"/>
+                      </svg>
+                      Google
                     </Button>
                     <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => handleSocialLogin("Facebook")}
                       disabled={isLoading}
+                      className="flex items-center justify-center gap-2"
                     >
                       <Facebook className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => handleSocialLogin("GitHub")}
-                      disabled={isLoading}
-                    >
-                      <Github className="h-4 w-4" />
+                      Facebook
                     </Button>
                   </div>
                 </CardFooter>
@@ -545,7 +535,6 @@ const Auth = () => {
         © 2025 VentiGrow. All rights reserved.
       </div>
       
-      {/* Forgot Password Dialog */}
       {showForgotPassword && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-card rounded-lg p-6 w-full max-w-md">
