@@ -1,24 +1,34 @@
 
 // This is a utility file that can be used to generate icons from the source image.
-// You can use this as a template if you want to programmatically generate icons.
+// You can use this in a Node.js environment to generate icons.
 
 import fs from 'fs';
-import { createCanvas, loadImage } from 'canvas';
 import path from 'path';
 
-// Sizes for the icons as defined in manifest.json
+// Define sizes for the icons as defined in manifest.json
 const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
 
+/**
+ * This function needs to be run in a Node.js environment with the canvas package installed.
+ * It cannot be run directly in the browser.
+ * 
+ * Usage:
+ * 1. Install canvas: npm install canvas
+ * 2. Run this file with Node.js
+ */
 async function generateIcons() {
-  const sourceImagePath = path.resolve(__dirname, '../../public/lovable-uploads/69cf283f-1aa4-4154-ac5a-c6954cf0aaf1.png');
-  const outputDir = path.resolve(__dirname, '../../public/icons');
-  
-  // Ensure the output directory exists
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-  
   try {
+    // Dynamic import to prevent browser errors
+    const { createCanvas, loadImage } = await import('canvas');
+    
+    const sourceImagePath = path.resolve(__dirname, '../../public/lovable-uploads/69cf283f-1aa4-4154-ac5a-c6954cf0aaf1.png');
+    const outputDir = path.resolve(__dirname, '../../public/icons');
+    
+    // Ensure the output directory exists
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+    
     const sourceImage = await loadImage(sourceImagePath);
     
     for (const size of sizes) {
@@ -40,11 +50,13 @@ async function generateIcons() {
     console.log('All icons generated successfully!');
   } catch (error) {
     console.error('Error generating icons:', error);
+    console.error('Note: This script must be run in a Node.js environment with the canvas package installed.');
+    console.error('It cannot be run directly in the browser.');
   }
 }
 
-// This function can be called directly or imported and used elsewhere
-if (require.main === module) {
+// Only run if called directly with Node.js
+if (typeof window === 'undefined' && require.main === module) {
   generateIcons();
 }
 
