@@ -32,7 +32,7 @@ const SplashScreen = () => {
           }`}
         >
           <img 
-            src="/lovable-uploads/23529c85-3ed2-4f99-80ae-968d74559753.png" 
+            src="/lovable-uploads/69cf283f-1aa4-4154-ac5a-c6954cf0aaf1.png" 
             alt="VentiGrow Logo" 
             className="w-48 h-48 object-contain"
           />
