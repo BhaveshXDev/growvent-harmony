@@ -21,7 +21,7 @@ async function generateIcons() {
     // Dynamic import to prevent browser errors
     const { createCanvas, loadImage } = await import('canvas');
     
-    const sourceImagePath = path.resolve(__dirname, '../../public/lovable-uploads/69cf283f-1aa4-4154-ac5a-c6954cf0aaf1.png');
+    const sourceImagePath = path.resolve(__dirname, '../../public/lovable-uploads/e2d773ba-0e09-4901-8a3a-68e17dce87ab.png');
     const outputDir = path.resolve(__dirname, '../../public/icons');
     
     // Ensure the output directory exists

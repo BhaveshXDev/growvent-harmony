@@ -36,7 +36,7 @@ export const getIconGenerationInstructions = (): string => {
     To generate icons for your PWA:
     
     1. Use an online tool like https://app-manifest.firebaseapp.com/ or https://www.pwabuilder.com/
-    2. Upload your source image (public/lovable-uploads/69cf283f-1aa4-4154-ac5a-c6954cf0aaf1.png)
+    2. Upload your source image (public/lovable-uploads/e2d773ba-0e09-4901-8a3a-68e17dce87ab.png)
     3. Download the generated icons
     4. Place them in the public/icons directory
     5. Ensure your manifest.json references these icons correctly
