@@ -14,22 +14,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
 
-// Form schema for validation
+// Form schema for validation - removed password and confirmPassword
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   gender: z.string().optional(),
   mobile: z.string().regex(/^[0-9]{10}$/, "Mobile number must be 10 digits").optional(),
   location: z.string().min(5, "Address must be at least 5 characters").optional(),
-  password: z.string().min(6, "Password must be at least 6 characters").optional(),
-  confirmPassword: z.string().optional(),
-}).refine((data) => {
-  if (data.password && !data.confirmPassword) return false;
-  if (!data.password && data.confirmPassword) return false;
-  if (data.password && data.confirmPassword && data.password !== data.confirmPassword) return false;
-  return true;
-}, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -50,8 +40,6 @@ const Settings = () => {
       gender: "",
       mobile: "",
       location: "",
-      password: "",
-      confirmPassword: "",
     },
   });
 
@@ -63,8 +51,6 @@ const Settings = () => {
         gender: profile.gender || "",
         mobile: profile.mobile || "",
         location: profile.location || "",
-        password: "",
-        confirmPassword: "",
       });
       
       if (profile.profileImageUrl) {
@@ -132,17 +118,6 @@ const Settings = () => {
         location: data.location,
         profileImageUrl: imageUrl,
       });
-
-      // If password was provided, update it
-      if (data.password) {
-        const { error } = await supabase.auth.updateUser({
-          password: data.password,
-        });
-
-        if (error) {
-          throw error;
-        }
-      }
 
       toast({
         title: "Profile updated",
@@ -287,42 +262,6 @@ const Settings = () => {
                       <FormControl>
                         <Input
                           placeholder="Your address"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>New Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm New Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
                           {...field}
                         />
                       </FormControl>
