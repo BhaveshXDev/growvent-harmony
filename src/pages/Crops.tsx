@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -34,14 +34,13 @@ const formSchema = z.object({
 
 const Crops = () => {
   const { user } = useAuth();
-  const [date, setDate] = useState<Date | undefined>(new Date());
   const [isAddCropOpen, setIsAddCropOpen] = useState(false);
-  const [crops, setCrops] = useState<any[]>([]);
+  const [crops, setCrops] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCrop, setSelectedCrop] = useState<any | null>(null);
+  const [selectedCrop, setSelectedCrop] = useState(null);
   const [viewCropDetails, setViewCropDetails] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -73,7 +72,7 @@ const Crops = () => {
       if (error) throw error;
       
       setCrops(data || []);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error fetching crops:", error.message);
       toast({
         title: "Error",
@@ -89,7 +88,62 @@ const Crops = () => {
     fetchCrops();
   }, [user]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  // Improved function to get crop image based on crop name
+  const getDefaultCropImage = (cropName) => {
+    if (!cropName) return "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png";
+    
+    const cropNameLower = cropName.toLowerCase();
+    
+    if (cropNameLower.includes("tomato")) {
+      return "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png";
+    } else if (cropNameLower.includes("strawberry")) {
+      return "/lovable-uploads/8b8489b4-720b-4aa4-8b40-dcb0e6d30c7b.png";
+    } else if (cropNameLower.includes("cucumber")) {
+      return "/lovable-uploads/f5f42c31-36d1-4c82-8480-d54c4a7e98ca.png";
+    } else if (cropNameLower.includes("chili") || cropNameLower.includes("pepper")) {
+      return "/lovable-uploads/5c549508-00e8-42a5-8998-1cc464f807d3.png";
+    } else if (cropNameLower.includes("lettuce") || cropNameLower.includes("salad")) {
+      return "/lovable-uploads/8b8489b4-720b-4aa4-8b40-dcb0e6d30c7b.png";
+    } else if (cropNameLower.includes("herb") || cropNameLower.includes("basil") || cropNameLower.includes("mint")) {
+      return "/lovable-uploads/f5f42c31-36d1-4c82-8480-d54c4a7e98ca.png";
+    } else if (cropNameLower.includes("carrot") || cropNameLower.includes("radish")) {
+      return "/lovable-uploads/5c549508-00e8-42a5-8998-1cc464f807d3.png";
+    } else {
+      // Default plant image
+      return "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png";
+    }
+  };
+
+  const getGrowthPercentage = (stage) => {
+    switch (stage) {
+      case "Seedling": return 20;
+      case "Vegetative": return 40;
+      case "Flowering": return 60;
+      case "Fruiting": return 80;
+      case "Harvesting": return 95;
+      default: return 0;
+    }
+  };
+
+  const calculateNextDate = (schedule) => {
+    const today = new Date();
+    const nextDate = new Date(today);
+    
+    if (schedule.includes("day")) {
+      const days = parseInt(schedule.match(/\d+/)?.[0] || "1");
+      nextDate.setDate(today.getDate() + days);
+    } else if (schedule.includes("week")) {
+      const weeks = parseInt(schedule.match(/\d+/)?.[0] || "1");
+      nextDate.setDate(today.getDate() + (weeks * 7));
+    } else if (schedule.includes("month")) {
+      const months = parseInt(schedule.match(/\d+/)?.[0] || "1");
+      nextDate.setMonth(today.getMonth() + months);
+    }
+    
+    return nextDate;
+  };
+
+  const onSubmit = async (values) => {
     try {
       if (!user) {
         toast({
@@ -99,6 +153,9 @@ const Crops = () => {
         });
         return;
       }
+
+      // Get the crop image based on the crop name
+      const cropImage = getDefaultCropImage(values.name);
 
       const cropData = {
         user_id: user.id,
@@ -118,8 +175,8 @@ const Crops = () => {
         next_pruning: calculateNextDate(values.pruningSchedule).toISOString().split('T')[0],
         last_fertilized: new Date().toISOString().split('T')[0],
         next_fertilization: calculateNextDate(values.fertilizationSchedule).toISOString().split('T')[0],
-        // Default image based on crop type
-        image: getDefaultCropImage(values.name),
+        // Set the image based on crop type
+        image: cropImage,
       };
 
       const { error } = await supabase.from("crops").insert([cropData]);
@@ -134,7 +191,7 @@ const Crops = () => {
       form.reset();
       setIsAddCropOpen(false);
       fetchCrops();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error adding crop:", error.message);
       toast({
         title: "Error",
@@ -144,60 +201,14 @@ const Crops = () => {
     }
   };
 
-  const getGrowthPercentage = (stage: string): number => {
-    switch (stage) {
-      case "Seedling": return 20;
-      case "Vegetative": return 40;
-      case "Flowering": return 60;
-      case "Fruiting": return 80;
-      case "Harvesting": return 95;
-      default: return 0;
-    }
-  };
-
-  const calculateNextDate = (schedule: string): Date => {
-    const today = new Date();
-    const nextDate = new Date(today);
-    
-    if (schedule.includes("day")) {
-      const days = parseInt(schedule.match(/\d+/)?.[0] || "1");
-      nextDate.setDate(today.getDate() + days);
-    } else if (schedule.includes("week")) {
-      const weeks = parseInt(schedule.match(/\d+/)?.[0] || "1");
-      nextDate.setDate(today.getDate() + (weeks * 7));
-    } else if (schedule.includes("month")) {
-      const months = parseInt(schedule.match(/\d+/)?.[0] || "1");
-      nextDate.setMonth(today.getMonth() + months);
-    }
-    
-    return nextDate;
-  };
-
-  const getDefaultCropImage = (cropName: string): string => {
-    const cropNameLower = cropName.toLowerCase();
-    
-    if (cropNameLower.includes("tomato")) {
-      return "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png";
-    } else if (cropNameLower.includes("strawberry")) {
-      return "/lovable-uploads/8b8489b4-720b-4aa4-8b40-dcb0e6d30c7b.png";
-    } else if (cropNameLower.includes("cucumber")) {
-      return "/lovable-uploads/f5f42c31-36d1-4c82-8480-d54c4a7e98ca.png";
-    } else if (cropNameLower.includes("chili") || cropNameLower.includes("pepper")) {
-      return "/lovable-uploads/5c549508-00e8-42a5-8998-1cc464f807d3.png";
-    } else {
-      // Default plant image
-      return "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png";
-    }
-  };
-
-  const handleLogCareActivity = async (cropId: string, activityType: 'watering' | 'pruning' | 'fertilization') => {
+  const handleLogCareActivity = async (cropId, activityType) => {
     try {
       const today = new Date().toISOString().split('T')[0];
       const crop = crops.find(c => c.id === cropId);
       
       if (!crop) return;
       
-      let updateData: Record<string, any> = {};
+      let updateData = {};
       
       if (activityType === 'watering') {
         const nextWatering = calculateNextDate(crop.watering_schedule).toISOString().split('T')[0];
@@ -238,7 +249,7 @@ const Crops = () => {
         setSelectedCrop({...selectedCrop, ...updateData});
       }
       
-    } catch (error: any) {
+    } catch (error) {
       console.error(`Error logging ${activityType}:`, error.message);
       toast({
         title: "Error",
@@ -248,7 +259,7 @@ const Crops = () => {
     }
   };
 
-  const growthStageColors: Record<string, string> = {
+  const growthStageColors = {
     "Seedling": "bg-lime-500",
     "Vegetative": "bg-green-500",
     "Flowering": "bg-purple-500",
@@ -418,7 +429,7 @@ const Crops = () => {
                     alt={selectedCrop.name} 
                     className="w-8 h-8 object-contain"
                   />
-                  {selectedCrop.name} - {selectedCrop.variety}
+                  {selectedCrop.name} {selectedCrop.variety && `- ${selectedCrop.variety}`}
                 </DialogTitle>
                 <DialogDescription>
                   Planted on {new Date(selectedCrop.planted_date).toLocaleDateString()}
@@ -603,6 +614,7 @@ const Crops = () => {
                 />
               </div>
               
+              {/* Fixed Calendar Component */}
               <FormField
                 control={form.control}
                 name="plantedDate"
@@ -621,12 +633,13 @@ const Crops = () => {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
+                      <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
+                          disabled={(date) => date > new Date()}
                         />
                       </PopoverContent>
                     </Popover>
@@ -699,33 +712,6 @@ const Crops = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs">Pruning</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Weekly">Weekly</SelectItem>
-                            <SelectItem value="Every 2 weeks">Every 2 weeks</SelectItem>
-                            <SelectItem value="Monthly">Monthly</SelectItem>
-                            <SelectItem value="Never">Never</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="fertilizationSchedule"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Fertilization</FormLabel>
                         <Select 
                           onValueChange={field.onChange}
                           defaultValue={field.value}
