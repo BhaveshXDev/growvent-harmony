@@ -20,11 +20,14 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   name: z.string().min(1, "Crop name is required"),
   variety: z.string().optional(),
-  plantedDate: z.date(),
+  plantedDate: z.date({
+    required_error: "Please select a date",
+  }),
   growthStage: z.string(),
   wateringSchedule: z.string(),
   pruningSchedule: z.string(),
@@ -54,7 +57,6 @@ const Crops = () => {
     },
   });
 
-  // Fetch crops from Supabase
   const fetchCrops = async () => {
     try {
       setLoading(true);
@@ -99,8 +101,6 @@ const Crops = () => {
         return;
       }
 
-      const cropImage = getDefaultCropImage(values.name);
-
       const cropData = {
         user_id: user.id,
         name: values.name,
@@ -118,7 +118,7 @@ const Crops = () => {
         next_pruning: calculateNextDate(values.pruningSchedule).toISOString().split('T')[0],
         last_fertilized: new Date().toISOString().split('T')[0],
         next_fertilization: calculateNextDate(values.fertilizationSchedule).toISOString().split('T')[0],
-        image: cropImage,
+        image: getDefaultCropImage(values.name),
       };
 
       const { error } = await supabase.from("crops").insert([cropData]);
@@ -176,15 +176,23 @@ const Crops = () => {
     const cropNameLower = cropName.toLowerCase();
     
     if (cropNameLower.includes("tomato")) {
-      return "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png";
+      return "/lovable-uploads/tomato.png";
     } else if (cropNameLower.includes("strawberry")) {
-      return "/lovable-uploads/8b8489b4-720b-4aa4-8b40-dcb0e6d30c7b.png";
+      return "/lovable-uploads/strawberry.png";
     } else if (cropNameLower.includes("cucumber")) {
-      return "/lovable-uploads/f5f42c31-36d1-4c82-8480-d54c4a7e98ca.png";
+      return "/lovable-uploads/cucumber.png";
     } else if (cropNameLower.includes("chili") || cropNameLower.includes("pepper")) {
-      return "/lovable-uploads/5c549508-00e8-42a5-8998-1cc464f807d3.png";
-    } else if (cropNameLower.includes("lettuce") || cropNameLower.includes("leafy")) {
-      return "/lovable-uploads/leafy-green.png";
+      return "/lovable-uploads/chili.png";
+    } else if (cropNameLower.includes("lettuce")) {
+      return "/lovable-uploads/lettuce.png";
+    } else if (cropNameLower.includes("carrot")) {
+      return "/lovable-uploads/carrot.png";
+    } else if (cropNameLower.includes("potato")) {
+      return "/lovable-uploads/potato.png";
+    } else if (cropNameLower.includes("onion")) {
+      return "/lovable-uploads/onion.png";
+    } else if (cropNameLower.includes("garlic")) {
+      return "/lovable-uploads/garlic.png";
     } else if (cropNameLower.includes("herb")) {
       return "/lovable-uploads/herbs.png";
     } else {
@@ -615,10 +623,17 @@ const Crops = () => {
                         <FormControl>
                           <Button
                             variant="outline"
-                            className="w-full justify-start text-left font-normal"
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? format(field.value, "PPP") : "Pick a date"}
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
@@ -627,8 +642,10 @@ const Crops = () => {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
                           initialFocus
-                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                         />
                       </PopoverContent>
                     </Popover>
