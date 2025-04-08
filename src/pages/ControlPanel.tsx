@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent, 
@@ -19,13 +18,29 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Fan, Sliders, Thermometer, Droplets, Wind, Clock, Save } from "lucide-react";
+import { 
+  Fan, 
+  Sliders, 
+  Thermometer, 
+  Droplets, 
+  Wind, 
+  Clock, 
+  Save,
+  RefreshCw
+} from "lucide-react";
+import { fetchWeatherData } from "@/utils/weatherApi";
 
 interface ControlZone {
   id: number;
   name: string;
   fanSpeed: number;
   active: boolean;
+}
+
+interface SensorData {
+  temperature: number;
+  humidity: number;
+  co2: number;
 }
 
 const defaultZones: ControlZone[] = [
@@ -45,6 +60,37 @@ const ControlPanel = () => {
     evening: 2,
     night: 1,
   });
+  const [sensorData, setSensorData] = useState<SensorData>({
+    temperature: 25,
+    humidity: 60,
+    co2: 650,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  
+  useEffect(() => {
+    fetchSensorData();
+  }, []);
+  
+  const fetchSensorData = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchWeatherData();
+      setSensorData({
+        temperature: parseFloat(data.temperature.toFixed(1)),
+        humidity: Math.round(data.humidity),
+        co2: Math.round(data.co2)
+      });
+      
+      toast({
+        title: "Sensor data updated",
+        description: data.location ? `Current readings from ${data.location}` : "Current sensor readings updated",
+      });
+    } catch (error) {
+      console.error("Error fetching sensor data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   const handleZoneChange = (zoneId: number, field: keyof ControlZone, value: any) => {
     setZones(
@@ -84,6 +130,57 @@ const ControlPanel = () => {
           />
         </div>
       </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Sliders className="mr-2 h-5 w-5" />
+            Current Sensor Readings
+          </CardTitle>
+          <CardDescription>
+            Live environmental conditions
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex items-center space-x-3">
+              <Thermometer className="h-8 w-8 text-red-500" />
+              <div>
+                <p className="text-sm font-medium">Temperature</p>
+                <p className="text-xl font-bold">{sensorData.temperature}°C</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <Droplets className="h-8 w-8 text-blue-500" />
+              <div>
+                <p className="text-sm font-medium">Humidity</p>
+                <p className="text-xl font-bold">{sensorData.humidity}%</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <Wind className="h-8 w-8 text-gray-500" />
+              <div>
+                <p className="text-sm font-medium">CO₂ Level</p>
+                <p className="text-xl font-bold">{sensorData.co2} ppm</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-4 flex justify-end">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={fetchSensorData}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Update Readings
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
       
       <Tabs defaultValue="manual" value={autoMode ? "auto" : "manual"}>
         <TabsList className="grid w-full grid-cols-2">

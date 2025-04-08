@@ -25,7 +25,8 @@ import {
   ArrowUp, 
   ArrowDown,
   MapPin,
-  User
+  User,
+  RefreshCw
 } from "lucide-react";
 import { 
   LineChart, 
@@ -40,12 +41,8 @@ import {
   Legend,
 } from "recharts";
 import { useAuth } from "@/context/AuthContext";
-
-const mockSensorData = {
-  temperature: 27.5,
-  humidity: 62,
-  co2: 780,
-};
+import { fetchWeatherData } from "@/utils/weatherApi";
+import { useToast } from "@/components/ui/use-toast";
 
 const mockEnergyData = [
   { time: "00:00", usage: 3.2 },
@@ -76,17 +73,53 @@ const mockAlerts = [
 
 const Dashboard = () => {
   const { profile } = useAuth();
+  const { toast } = useToast();
   const [fanSpeed, setFanSpeed] = useState(3);
-  const [sensorData, setSensorData] = useState(mockSensorData);
+  const [sensorData, setSensorData] = useState({
+    temperature: 25,
+    humidity: 60,
+    co2: 650,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string>("");
+  
+  const fetchRealTimeData = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchWeatherData();
+      setSensorData({
+        temperature: parseFloat(data.temperature.toFixed(1)),
+        humidity: Math.round(data.humidity),
+        co2: Math.round(data.co2),
+      });
+      
+      const now = new Date();
+      setLastUpdated(
+        `${now.toLocaleTimeString()} ${now.toLocaleDateString()}`
+      );
+      
+      toast({
+        title: "Data updated",
+        description: data.location ? `Weather data from ${data.location}` : "Weather data updated",
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast({
+        title: "Update failed",
+        description: "Could not fetch the latest weather data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   useEffect(() => {
+    fetchRealTimeData();
+    
     const interval = setInterval(() => {
-      setSensorData({
-        temperature: mockSensorData.temperature + (Math.random() * 0.6 - 0.3),
-        humidity: mockSensorData.humidity + (Math.random() * 2 - 1),
-        co2: mockSensorData.co2 + (Math.random() * 20 - 10),
-      });
-    }, 5000);
+      fetchRealTimeData();
+    }, 300000);
     
     return () => clearInterval(interval);
   }, []);
@@ -145,10 +178,26 @@ const Dashboard = () => {
             </div>
           )}
         </div>
-        <Button variant="outline" size="icon">
-          <Bell className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={fetchRealTimeData}
+            disabled={isLoading}
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </Button>
+          <Button variant="outline" size="icon">
+            <Bell className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
+      
+      {lastUpdated && (
+        <div className="text-sm text-muted-foreground">
+          Last updated: {lastUpdated}
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
