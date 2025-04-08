@@ -9,6 +9,75 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      crops: {
+        Row: {
+          created_at: string
+          fertilization_schedule: string | null
+          growth_percentage: number | null
+          growth_stage: string | null
+          id: string
+          image: string | null
+          last_fertilized: string | null
+          last_pruned: string | null
+          last_watered: string | null
+          name: string
+          next_fertilization: string | null
+          next_pruning: string | null
+          next_watering: string | null
+          notes: string | null
+          planted_date: string
+          pruning_schedule: string | null
+          updated_at: string
+          user_id: string
+          variety: string | null
+          watering_schedule: string | null
+        }
+        Insert: {
+          created_at?: string
+          fertilization_schedule?: string | null
+          growth_percentage?: number | null
+          growth_stage?: string | null
+          id?: string
+          image?: string | null
+          last_fertilized?: string | null
+          last_pruned?: string | null
+          last_watered?: string | null
+          name: string
+          next_fertilization?: string | null
+          next_pruning?: string | null
+          next_watering?: string | null
+          notes?: string | null
+          planted_date: string
+          pruning_schedule?: string | null
+          updated_at?: string
+          user_id: string
+          variety?: string | null
+          watering_schedule?: string | null
+        }
+        Update: {
+          created_at?: string
+          fertilization_schedule?: string | null
+          growth_percentage?: number | null
+          growth_stage?: string | null
+          id?: string
+          image?: string | null
+          last_fertilized?: string | null
+          last_pruned?: string | null
+          last_watered?: string | null
+          name?: string
+          next_fertilization?: string | null
+          next_pruning?: string | null
+          next_watering?: string | null
+          notes?: string | null
+          planted_date?: string
+          pruning_schedule?: string | null
+          updated_at?: string
+          user_id?: string
+          variety?: string | null
+          watering_schedule?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
