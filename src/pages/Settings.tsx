@@ -1,27 +1,27 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserCircle, Save } from "lucide-react";
+import { UserCircle, Save, Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { supabase } from "@/integrations/supabase/client";
 
 // Form schema for validation
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
   gender: z.string().optional(),
-  mobile: z.string().regex(/^[0-9]{10}$/, "Mobile number must be 10 digits"),
+  mobile: z.string().regex(/^[0-9]{10}$/, "Mobile number must be 10 digits").optional(),
+  location: z.string().min(5, "Address must be at least 5 characters").optional(),
   password: z.string().min(6, "Password must be at least 6 characters").optional(),
   confirmPassword: z.string().optional(),
-  location: z.string().min(5, "Address must be at least 5 characters"),
 }).refine((data) => {
   if (data.password && !data.confirmPassword) return false;
   if (!data.password && data.confirmPassword) return false;
@@ -35,46 +35,45 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const Settings = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, profile, updateProfile } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(user?.profileImageUrl || null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(profile?.profileImageUrl || null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize form with user data
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user?.name || "",
-      email: user?.email || "",
+      name: "",
       gender: "",
       mobile: "",
+      location: "",
       password: "",
       confirmPassword: "",
-      location: "",
     },
   });
 
   // Load user data when available
   useEffect(() => {
-    if (user) {
+    if (profile) {
       form.reset({
-        name: user.name || "",
-        email: user.email || "",
-        gender: user.gender || "",
-        mobile: user.mobile || "",
-        location: user.location || "",
+        name: profile.name || "",
+        gender: profile.gender || "",
+        mobile: profile.mobile || "",
+        location: profile.location || "",
         password: "",
         confirmPassword: "",
       });
       
-      if (user.profileImageUrl) {
-        setProfileImagePreview(user.profileImageUrl);
+      if (profile.profileImageUrl) {
+        setProfileImagePreview(profile.profileImageUrl);
       }
     }
-  }, [user, form]);
+  }, [profile, form]);
 
-  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setProfileImage(file);
@@ -82,32 +81,88 @@ const Settings = () => {
     }
   };
 
+  const uploadProfileImage = async (): Promise<string | null> => {
+    if (!profileImage || !user) return null;
+    
+    try {
+      const fileExt = profileImage.name.split('.').pop();
+      const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('profile-images')
+        .upload(fileName, profileImage);
+      
+      if (uploadError) {
+        throw uploadError;
+      }
+      
+      const { data } = supabase.storage
+        .from('profile-images')
+        .getPublicUrl(fileName);
+      
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload profile image. Please try again.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
   const onSubmit = async (data: ProfileFormValues) => {
     setIsLoading(true);
     try {
+      // Upload profile image if changed
+      let imageUrl = profile?.profileImageUrl;
+      if (profileImage) {
+        const newImageUrl = await uploadProfileImage();
+        if (newImageUrl) {
+          imageUrl = newImageUrl;
+        }
+      }
+
       // Update user profile
       await updateProfile({
         name: data.name,
-        email: data.email,
         gender: data.gender,
         mobile: data.mobile,
         location: data.location,
-        // For a real app, you'd handle password update differently
-        // This is just for demonstration
+        profileImageUrl: imageUrl,
       });
+
+      // If password was provided, update it
+      if (data.password) {
+        const { error } = await supabase.auth.updateUser({
+          password: data.password,
+        });
+
+        if (error) {
+          throw error;
+        }
+      }
 
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully.",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: error.message || "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
@@ -139,16 +194,19 @@ const Settings = () => {
                     </div>
                   )}
                   <div className="absolute -bottom-2 -right-2">
-                    <Label
-                      htmlFor="profile-image"
-                      className="bg-forest text-white p-2 rounded-full cursor-pointer hover:bg-forest/90"
+                    <Button
+                      type="button"
+                      size="icon"
+                      className="bg-forest hover:bg-forest/90 text-white rounded-full"
+                      onClick={triggerFileInput}
                     >
-{/*                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> */}
-                    </Label>
+                      <Upload className="h-4 w-4" />
+                    </Button>
                     <Input
                       id="profile-image"
                       type="file"
                       className="hidden"
+                      ref={fileInputRef}
                       onChange={handleProfileImageChange}
                       accept="image/*"
                     />
@@ -165,20 +223,6 @@ const Settings = () => {
                       <FormLabel>Full Name</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter Your Name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter Your Email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -236,10 +280,27 @@ const Settings = () => {
 
                 <FormField
                   control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Your address"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>New Password</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
@@ -257,7 +318,7 @@ const Settings = () => {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel>Confirm New Password</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
@@ -269,25 +330,6 @@ const Settings = () => {
                     </FormItem>
                   )}
                 />
-
-                <div className="md:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Location</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Your address"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
               </div>
 
               <Button type="submit" className="w-full bg-forest hover:bg-forest/90" disabled={isLoading}>

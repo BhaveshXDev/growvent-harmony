@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -7,10 +8,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Loader2, Upload, Mail, Facebook } from "lucide-react";
+import { Eye, EyeOff, Loader2, Upload, Facebook } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -56,10 +57,10 @@ const Auth = () => {
         description: "You have successfully logged in.",
       });
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Login Failed",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description: error.message || "An error occurred",
         variant: "destructive",
       });
     } finally {
@@ -100,15 +101,29 @@ const Auth = () => {
     try {
       setIsLoading(true);
       await signup(signupEmail, signupPassword, signupName, profileImage);
+      
+      // After successful signup, update the user's profile with additional info
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({
+            gender: gender,
+            mobile: mobileNumber,
+          })
+          .eq('id', user.id);
+      }
+      
       toast({
         title: "Success",
-        description: "Your account has been created.",
+        description: "Your account has been created. You can now log in.",
       });
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Signup Failed",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description: error.message || "An error occurred",
         variant: "destructive",
       });
     } finally {
@@ -130,16 +145,22 @@ const Auth = () => {
     
     try {
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+      
+      if (error) throw error;
+      
       toast({
         title: "Reset Email Sent",
         description: "Check your inbox for password reset instructions.",
       });
       setShowForgotPassword(false);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Failed to Send Reset Email",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description: error.message || "An error occurred",
         variant: "destructive",
       });
     } finally {
@@ -162,20 +183,28 @@ const Auth = () => {
     }
   };
   
-  const handleSocialLogin = (provider: string) => {
-    setIsLoading(true);
-    
-    setTimeout(() => {
+  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
+    try {
+      setIsLoading(true);
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      
+      if (error) throw error;
+      
+    } catch (error: any) {
+      console.error(`${provider} login error:`, error);
       toast({
-        title: "Social Login",
-        description: `Logging in with ${provider}...`,
+        title: "Login Failed",
+        description: error.message || `Could not sign in with ${provider}.`,
+        variant: "destructive",
       });
       setIsLoading(false);
-      
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1500);
-    }, 1000);
+    }
   };
   
   return (
@@ -288,7 +317,7 @@ const Auth = () => {
                     <Button 
                       type="button" 
                       variant="outline" 
-                      onClick={() => handleSocialLogin("Google")}
+                      onClick={() => handleSocialLogin('google')}
                       disabled={isLoading}
                       className="flex items-center justify-center gap-2"
                     >
@@ -300,7 +329,7 @@ const Auth = () => {
                     <Button 
                       type="button" 
                       variant="outline" 
-                      onClick={() => handleSocialLogin("Facebook")}
+                      onClick={() => handleSocialLogin('facebook')}
                       disabled={isLoading}
                       className="flex items-center justify-center gap-2"
                     >
@@ -504,7 +533,7 @@ const Auth = () => {
                     <Button 
                       type="button" 
                       variant="outline" 
-                      onClick={() => handleSocialLogin("Google")}
+                      onClick={() => handleSocialLogin('google')}
                       disabled={isLoading}
                       className="flex items-center justify-center gap-2"
                     >
@@ -516,7 +545,7 @@ const Auth = () => {
                     <Button 
                       type="button" 
                       variant="outline" 
-                      onClick={() => handleSocialLogin("Facebook")}
+                      onClick={() => handleSocialLogin('facebook')}
                       disabled={isLoading}
                       className="flex items-center justify-center gap-2"
                     >
