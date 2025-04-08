@@ -75,7 +75,7 @@ const mockAlerts = [
 ];
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { profile } = useAuth();
   const [fanSpeed, setFanSpeed] = useState(3);
   const [sensorData, setSensorData] = useState(mockSensorData);
   
@@ -130,16 +130,16 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          {user && (
+          {profile && (
             <div className="flex flex-col xs:flex-row xs:items-center gap-1 xs:gap-3 text-muted-foreground mt-1">
               <div className="flex items-center">
                 <User className="h-4 w-4 mr-1" />
-                <span>{user.name}</span>
+                <span>{profile.name}</span>
               </div>
-              {user.location && (
+              {profile.location && (
                 <div className="flex items-center">
                   <MapPin className="h-4 w-4 mr-1" />
-                  <span>{user.location}</span>
+                  <span>{profile.location}</span>
                 </div>
               )}
             </div>

@@ -66,14 +66,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
 
-        setProfile({
-          id: data.id,
-          name: data.name,
-          profileImageUrl: data.profile_image_url,
-          gender: data.gender,
-          mobile: data.mobile,
-          location: data.location,
-        });
+        if (data) {
+          setProfile({
+            id: data.id,
+            name: data.name || '',
+            profileImageUrl: data.profile_image_url,
+            gender: data.gender,
+            mobile: data.mobile,
+            location: data.location,
+          });
+        }
       } catch (error) {
         console.error('Error in profile fetch:', error);
       }
@@ -168,7 +170,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (publicUrlData) {
             await supabase
               .from('profiles')
-              .update({ profile_image_url: publicUrlData.publicUrl })
+              .update({ 
+                profile_image_url: publicUrlData.publicUrl 
+              })
               .eq('id', authData.user.id);
           }
         }

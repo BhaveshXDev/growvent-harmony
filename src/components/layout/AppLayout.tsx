@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -32,7 +33,7 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
-  const { logout, user } = useAuth();
+  const { logout, user, profile } = useAuth();
   const { toast } = useToast();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(true);
@@ -203,10 +204,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   size="icon"
                   className="rounded-full text-white hover:bg-forest/80"
                 >
-                  {user?.profileImageUrl ? (
+                  {profile?.profileImageUrl ? (
                     <img 
-                      src={user.profileImageUrl} 
-                      alt={user.name} 
+                      src={profile.profileImageUrl} 
+                      alt={profile.name} 
                       className="h-7 w-7 rounded-full object-cover"
                     />
                   ) : (
@@ -215,7 +216,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{user?.name || "User"}</DropdownMenuLabel>
+                <DropdownMenuLabel>{profile?.name || "User"}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Link to="/settings" className="w-full">My Profile</Link>
