@@ -233,7 +233,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       </header>
       
       <main className="flex-grow">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-6 pb-20">
           {children}
         </div>
       </main>
@@ -242,8 +242,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         © 2025 VentiGrow. All rights reserved.
       </footer>
       
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-charcoal border-t shadow-lg z-50">
-        <div className="flex justify-between px-2 py-2">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-charcoal border-t shadow-lg z-50">
+        <div className="flex justify-between px-2 py-2 max-w-screen-xl mx-auto">
           {navItems.map((item) => (
             <Link
               key={item.path}
