@@ -10,12 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Loader2, Upload, Facebook, Mail } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { login, signup, emailConfirmationPending, resendConfirmationEmail } = useAuth();
+  const { login, signup, emailConfirmationPending, resendConfirmationEmail, signInWithSocialProvider } = useAuth();
   const { toast } = useToast();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -198,23 +197,10 @@ const Auth = () => {
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     try {
       setIsLoading(true);
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: provider,
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
-      });
-      
-      if (error) throw error;
-      
-    } catch (error: any) {
-      console.error(`${provider} login error:`, error);
-      toast({
-        title: "Login Failed",
-        description: error.message || `Could not sign in with ${provider}.`,
-        variant: "destructive",
-      });
+      await signInWithSocialProvider(provider);
+      // Auth state change will handle navigation
+    } catch (error) {
+      // Error handling is done in the context
       setIsLoading(false);
     }
   };

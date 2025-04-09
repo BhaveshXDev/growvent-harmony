@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +24,7 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<void>;
   resendConfirmationEmail: (email: string) => Promise<void>;
   updateProfile: (data: Partial<Profile>) => Promise<void>;
+  signInWithSocialProvider: (provider: 'google' | 'facebook') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -39,6 +39,7 @@ const AuthContext = createContext<AuthContextType>({
   resetPassword: async () => {},
   resendConfirmationEmail: async () => {},
   updateProfile: async () => {},
+  signInWithSocialProvider: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -170,7 +171,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signup = async (email: string, password: string, name: string, profileImage?: File) => {
     try {
-      // Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -189,7 +189,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("User creation failed");
       }
 
-      // If profile image is provided, upload it
       if (profileImage) {
         const fileExt = profileImage.name.split('.').pop();
         const filePath = `${authData.user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
@@ -201,12 +200,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (uploadError) {
           console.error('Error uploading image:', uploadError);
         } else {
-          // Get public URL for the uploaded image
           const { data: publicUrlData } = supabase.storage
             .from('profile-images')
             .getPublicUrl(filePath);
 
-          // Update profile with image URL
           if (publicUrlData) {
             await supabase
               .from('profiles')
@@ -258,10 +255,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw error;
       }
 
-      // Update local profile state
       setProfile(prev => prev ? { ...prev, ...data } : null);
       
-      // If name was updated, we need to update auth metadata
       if (data.name) {
         await supabase.auth.updateUser({
           data: { name: data.name }
@@ -270,6 +265,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error("Profile update failed:", error);
       throw new Error(error.message || "Could not update profile. Please try again.");
+    }
+  };
+
+  const signInWithSocialProvider = async (provider: 'google' | 'facebook') => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Login Successful",
+        description: `You have successfully signed in with ${provider}.`,
+      });
+      
+      setLoading(false);
+    } catch (error: any) {
+      console.error(`${provider} login failed:`, error);
+      toast({
+        title: "Login Failed",
+        description: error.message || `Could not sign in with ${provider}.`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -298,7 +326,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       logout,
       resetPassword,
       resendConfirmationEmail,
-      updateProfile 
+      updateProfile,
+      signInWithSocialProvider 
     }}>
       {children}
     </AuthContext.Provider>
