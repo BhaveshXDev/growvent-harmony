@@ -55,7 +55,6 @@ const Crops = () => {
     },
   });
 
-  // Fetch crops from Supabase
   const fetchCrops = async () => {
     try {
       setLoading(true);
@@ -100,6 +99,22 @@ const Crops = () => {
         return;
       }
 
+      const cropNameLower = values.name.toLowerCase();
+      let cropImage = "";
+      
+      if (cropNameLower.includes("tomato")) {
+        cropImage = "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png";
+      } else if (cropNameLower.includes("strawberry")) {
+        cropImage = "/lovable-uploads/8b8489b4-720b-4aa4-8b40-dcb0e6d30c7b.png";
+      } else if (cropNameLower.includes("cucumber")) {
+        cropImage = "/lovable-uploads/f5f42c31-36d1-4c82-8480-d54c4a7e98ca.png";
+      } else if (cropNameLower.includes("chili") || cropNameLower.includes("pepper")) {
+        cropImage = "/lovable-uploads/5c549508-00e8-42a5-8998-1cc464f807d3.png";
+      } else {
+        // Default plant image
+        cropImage = "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png";
+      }
+
       const cropData = {
         user_id: user.id,
         name: values.name,
@@ -118,8 +133,8 @@ const Crops = () => {
         next_pruning: calculateNextDate(values.pruningSchedule).toISOString().split('T')[0],
         last_fertilized: new Date().toISOString().split('T')[0],
         next_fertilization: calculateNextDate(values.fertilizationSchedule).toISOString().split('T')[0],
-        // Default image based on crop type
-        image: getDefaultCropImage(values.name),
+        // Set the image explicitly based on crop type
+        image: cropImage,
       };
 
       const { error } = await supabase.from("crops").insert([cropData]);
@@ -621,11 +636,11 @@ const Crops = () => {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
+                      <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => date && field.onChange(date)}
                           initialFocus
                         />
                       </PopoverContent>
