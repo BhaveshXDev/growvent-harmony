@@ -12,9 +12,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 
-const SignupForm = () => {
+interface SignupFormProps {
+  handleSocialLogin: (provider: 'google' | 'facebook') => Promise<void>;
+}
+
+const SignupForm = ({ handleSocialLogin }: SignupFormProps) => {
   const navigate = useNavigate();
-  const { signup, signInWithSocialProvider } = useAuth();
+  const { signup } = useAuth();
   const { toast } = useToast();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -104,17 +108,6 @@ const SignupForm = () => {
   const triggerFileInput = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
-    }
-  };
-  
-  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
-    try {
-      setIsLoading(true);
-      await signInWithSocialProvider(provider);
-      // Auth state change will handle navigation
-    } catch (error) {
-      // Error handling is done in the context
-      setIsLoading(false);
     }
   };
   

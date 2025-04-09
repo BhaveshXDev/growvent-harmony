@@ -12,11 +12,12 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 
 interface LoginFormProps {
   setShowForgotPassword: (show: boolean) => void;
+  handleSocialLogin: (provider: 'google' | 'facebook') => Promise<void>;
 }
 
-const LoginForm = ({ setShowForgotPassword }: LoginFormProps) => {
+const LoginForm = ({ setShowForgotPassword, handleSocialLogin }: LoginFormProps) => {
   const navigate = useNavigate();
-  const { login, emailConfirmationPending, resendConfirmationEmail, signInWithSocialProvider } = useAuth();
+  const { login, emailConfirmationPending, resendConfirmationEmail } = useAuth();
   const { toast } = useToast();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -66,17 +67,6 @@ const LoginForm = ({ setShowForgotPassword }: LoginFormProps) => {
     }
     
     await resendConfirmationEmail(loginEmail);
-  };
-  
-  const handleSocialLogin = async (provider: 'google' | 'facebook') => {
-    try {
-      setIsLoading(true);
-      await signInWithSocialProvider(provider);
-      // Auth state change will handle navigation
-    } catch (error) {
-      // Error handling is done in the context
-      setIsLoading(false);
-    }
   };
   
   return (
