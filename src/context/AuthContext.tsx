@@ -18,10 +18,12 @@ interface AuthContextType {
   profile: Profile | null;
   session: Session | null;
   loading: boolean;
+  emailConfirmationPending: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string, profileImage?: File) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  resendConfirmationEmail: (email: string) => Promise<void>;
   updateProfile: (data: Partial<Profile>) => Promise<void>;
 }
 
@@ -30,10 +32,12 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   session: null,
   loading: true,
+  emailConfirmationPending: false,
   login: async () => {},
   signup: async () => {},
   logout: async () => {},
   resetPassword: async () => {},
+  resendConfirmationEmail: async () => {},
   updateProfile: async () => {},
 });
 
@@ -44,6 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [emailConfirmationPending, setEmailConfirmationPending] = useState(false);
   const { toast } = useToast();
 
   // Fetch profile data when user changes
@@ -114,17 +119,52 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        if (error.message === "Email not confirmed") {
+          setEmailConfirmationPending(true);
+          throw new Error("Your email has not been confirmed yet. Please check your inbox or request a new confirmation email.");
+        }
         throw error;
       }
     } catch (error: any) {
       console.error("Login failed:", error);
       throw new Error(error.message || "Invalid credentials. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendConfirmationEmail = async (email: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Confirmation Email Sent",
+        description: "Please check your inbox for the confirmation link.",
+      });
+    } catch (error: any) {
+      console.error("Failed to resend confirmation email:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to resend confirmation email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -252,10 +292,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       profile,
       session,
       loading, 
+      emailConfirmationPending,
       login, 
       signup, 
       logout,
       resetPassword,
+      resendConfirmationEmail,
       updateProfile 
     }}>
       {children}

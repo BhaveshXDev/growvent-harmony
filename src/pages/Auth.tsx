@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -8,14 +7,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Loader2, Upload, Facebook } from "lucide-react";
+import { Eye, EyeOff, Loader2, Upload, Facebook, Mail } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { login, signup } = useAuth();
+  const { login, signup, emailConfirmationPending, resendConfirmationEmail } = useAuth();
   const { toast } = useToast();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -68,6 +68,19 @@ const Auth = () => {
     }
   };
   
+  const handleResendConfirmation = async () => {
+    if (!loginEmail) {
+      toast({
+        title: "Error",
+        description: "Please enter your email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    await resendConfirmationEmail(loginEmail);
+  };
+  
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -102,7 +115,6 @@ const Auth = () => {
       setIsLoading(true);
       await signup(signupEmail, signupPassword, signupName, profileImage);
       
-      // After successful signup, update the user's profile with additional info
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
@@ -234,6 +246,28 @@ const Auth = () => {
                   Enter your credentials to access your account
                 </CardDescription>
               </CardHeader>
+              
+              {emailConfirmationPending && (
+                <div className="px-6">
+                  <Alert className="mb-4 bg-amber-50 border-amber-200">
+                    <Mail className="h-4 w-4 text-amber-500" />
+                    <AlertTitle className="text-amber-800">Email confirmation required</AlertTitle>
+                    <AlertDescription className="text-amber-700">
+                      Please verify your email address before logging in. 
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="p-0 h-auto text-amber-700 font-medium underline ml-1"
+                        onClick={handleResendConfirmation}
+                        disabled={isLoading}
+                      >
+                        Resend confirmation email
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+              
               <form onSubmit={handleLogin}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
