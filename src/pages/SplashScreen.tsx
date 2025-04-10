@@ -45,7 +45,7 @@ const SplashScreen = () => {
               : "opacity-0 translate-y-8"
           }`}
         >
-          <h1 className="text-3xl font-bold text-white mb-2">VentiGrow</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">VentriGrow</h1>
           <p className="text-lime text-lg">
             Smart Agriculture Ventilation System
           </p>
