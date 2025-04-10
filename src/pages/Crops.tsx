@@ -1,15 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon, ChevronDown, Droplets, Plus, Scissors, Leaf, Loader2, Search } from "lucide-react";
+import { Calendar as CalendarIcon, Droplets, Plus, Scissors, Leaf, Loader2, Search } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +20,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formSchema = z.object({
   name: z.string().min(1, "Crop name is required"),
@@ -34,6 +34,7 @@ const formSchema = z.object({
 });
 
 const Crops = () => {
+  const isMobile = useIsMobile();
   const { user } = useAuth();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [isAddCropOpen, setIsAddCropOpen] = useState(false);
@@ -41,7 +42,6 @@ const Crops = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCrop, setSelectedCrop] = useState<any | null>(null);
   const [viewCropDetails, setViewCropDetails] = useState(false);
-  const [cropImageLoading, setCropImageLoading] = useState(false);
   const [cropImageUrl, setCropImageUrl] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -91,67 +91,23 @@ const Crops = () => {
     fetchCrops();
   }, [user]);
 
-  // New function to fetch crop image using an API
-  const fetchCropImage = async (cropName: string) => {
-    try {
-      setCropImageLoading(true);
-      setCropImageUrl(null);
-      
-      // First check if we have local images that match
-      const cropNameLower = cropName.toLowerCase();
-      
-      if (cropNameLower.includes("tomato")) {
-        setCropImageUrl("/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png");
-        setCropImageLoading(false);
-        return;
-      } else if (cropNameLower.includes("strawberry")) {
-        setCropImageUrl("/lovable-uploads/8b8489b4-720b-4aa4-8b40-dcb0e6d30c7b.png");
-        setCropImageLoading(false);
-        return;
-      } else if (cropNameLower.includes("cucumber")) {
-        setCropImageUrl("/lovable-uploads/f5f42c31-36d1-4c82-8480-d54c4a7e98ca.png");
-        setCropImageLoading(false);
-        return;
-      } else if (cropNameLower.includes("chili") || cropNameLower.includes("pepper")) {
-        setCropImageUrl("/lovable-uploads/5c549508-00e8-42a5-8998-1cc464f807d3.png");
-        setCropImageLoading(false);
-        return;
-      }
-      
-      // Fallback to Unsplash API
-      const response = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(cropName)}+plant&per_page=1&client_id=C88-Th-NNGMNRmYtXSHhCwhC58fmWGXGsX5_R7QwHvQ`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch from Unsplash');
-      }
-      
-      const data = await response.json();
-      
-      if (data.results && data.results.length > 0) {
-        setCropImageUrl(data.results[0].urls.small);
-      } else {
-        // Default image if nothing found
-        setCropImageUrl("/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png");
-      }
-    } catch (error) {
-      console.error("Error fetching crop image:", error);
-      // Use default image on error
-      setCropImageUrl("/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png");
-    } finally {
-      setCropImageLoading(false);
+  // Function to fetch crop image based on name - simplified to just set a default image
+  const fetchCropImage = (cropName: string): string => {
+    const cropNameLower = cropName.toLowerCase();
+    
+    if (cropNameLower.includes("tomato")) {
+      return "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png";
+    } else if (cropNameLower.includes("strawberry")) {
+      return "/lovable-uploads/8b8489b4-720b-4aa4-8b40-dcb0e6d30c7b.png";
+    } else if (cropNameLower.includes("cucumber")) {
+      return "/lovable-uploads/f5f42c31-36d1-4c82-8480-d54c4a7e98ca.png";
+    } else if (cropNameLower.includes("chili") || cropNameLower.includes("pepper")) {
+      return "/lovable-uploads/5c549508-00e8-42a5-8998-1cc464f807d3.png";
+    } else {
+      // Default plant image
+      return "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png";
     }
   };
-  
-  // Watch crop name changes to fetch images
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'name' && value.name && value.name.length > 2) {
-        fetchCropImage(value.name);
-      }
-    });
-    
-    return () => subscription.unsubscribe();
-  }, [form.watch]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -182,8 +138,8 @@ const Crops = () => {
         next_pruning: calculateNextDate(values.pruningSchedule).toISOString().split('T')[0],
         last_fertilized: new Date().toISOString().split('T')[0],
         next_fertilization: calculateNextDate(values.fertilizationSchedule).toISOString().split('T')[0],
-        // Set the image from the fetched image URL
-        image: cropImageUrl || "/lovable-uploads/2b54e8ca-7eeb-46cf-bcef-f32a94192aba.png",
+        // Set the image from the fetched image
+        image: fetchCropImage(values.name),
       };
 
       const { error } = await supabase.from("crops").insert([cropData]);
@@ -196,7 +152,6 @@ const Crops = () => {
       });
 
       form.reset();
-      setCropImageUrl(null);
       setIsAddCropOpen(false);
       fetchCrops();
     } catch (error: any) {
@@ -628,7 +583,7 @@ const Crops = () => {
       </Dialog>
 
       <Dialog open={isAddCropOpen} onOpenChange={setIsAddCropOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md w-full overflow-y-auto max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Add New Crop</DialogTitle>
             <DialogDescription>
@@ -638,7 +593,7 @@ const Crops = () => {
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="name"
@@ -666,30 +621,6 @@ const Crops = () => {
                     </FormItem>
                   )}
                 />
-              </div>
-              
-              {/* Preview of the fetched image */}
-              <div className="border rounded-md p-3 bg-muted/10">
-                <div className="text-sm mb-2 font-medium">Crop Image Preview</div>
-                <div className="h-36 flex items-center justify-center bg-muted/20 rounded">
-                  {cropImageLoading ? (
-                    <div className="flex flex-col items-center">
-                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-2" />
-                      <span className="text-sm text-muted-foreground">Finding image...</span>
-                    </div>
-                  ) : cropImageUrl ? (
-                    <img 
-                      src={cropImageUrl} 
-                      alt="Crop preview" 
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center">
-                      <Search className="h-8 w-8 text-muted-foreground mb-2" />
-                      <span className="text-sm text-muted-foreground">Type crop name to fetch image</span>
-                    </div>
-                  )}
-                </div>
               </div>
               
               <FormField
@@ -754,7 +685,7 @@ const Crops = () => {
               
               <div className="space-y-2">
                 <Label>Care Schedule</Label>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
                     name="wateringSchedule"
@@ -856,8 +787,8 @@ const Crops = () => {
                 )}
               />
               
-              <DialogFooter>
-                <Button type="submit">Add Crop</Button>
+              <DialogFooter className="pt-2">
+                <Button type="submit" className="w-full">Add Crop</Button>
               </DialogFooter>
             </form>
           </Form>
