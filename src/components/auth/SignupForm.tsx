@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Loader2, Upload } from "lucide-react";
+import { Eye, EyeOff, Loader2, Upload, MapPin } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CardContent, CardFooter } from "@/components/ui/card";
@@ -30,6 +30,7 @@ const SignupForm = ({ handleSocialLogin }: SignupFormProps) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [gender, setGender] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
+  const [location, setLocation] = useState("");
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,7 +38,7 @@ const SignupForm = ({ handleSocialLogin }: SignupFormProps) => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!signupName || !signupEmail || !signupPassword || !gender || !mobileNumber) {
+    if (!signupName || !signupEmail || !signupPassword || !gender || !mobileNumber || !location) {
       toast({
         title: "Error",
         description: "Please fill in all required fields.",
@@ -76,6 +77,7 @@ const SignupForm = ({ handleSocialLogin }: SignupFormProps) => {
           .update({
             gender: gender,
             mobile: mobileNumber,
+            location: location,
           })
           .eq('id', user.id);
       }
@@ -184,6 +186,24 @@ const SignupForm = ({ handleSocialLogin }: SignupFormProps) => {
               <SelectItem value="other">Other</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="location">Your Location</Label>
+          <div className="flex">
+            <div className="bg-muted flex items-center justify-center px-3 border border-r-0 border-input rounded-l-md">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <Input 
+              id="location" 
+              className="rounded-l-none"
+              placeholder="Enter your city (e.g., Mumbai, Delhi)" 
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              disabled={isLoading}
+              required
+            />
+          </div>
         </div>
         
         <div className="space-y-2">

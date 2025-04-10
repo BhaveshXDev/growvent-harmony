@@ -26,7 +26,11 @@ import {
   ArrowDown,
   MapPin,
   User,
-  RefreshCw
+  RefreshCw,
+  CloudSun,
+  CloudRain,
+  Gauge,
+  Eye
 } from "lucide-react";
 import { 
   LineChart, 
@@ -41,7 +45,7 @@ import {
   Legend,
 } from "recharts";
 import { useAuth } from "@/context/AuthContext";
-import { fetchWeatherData } from "@/utils/weatherApi";
+import { fetchWeatherData, fetchWeatherByLocation } from "@/utils/weatherApi";
 import { useToast } from "@/components/ui/use-toast";
 
 const mockEnergyData = [
@@ -79,6 +83,14 @@ const Dashboard = () => {
     temperature: 25,
     humidity: 60,
     co2: 650,
+    description: "Clear sky",
+    icon: "01d",
+    feels_like: 27,
+    wind_speed: 3.5,
+    pressure: 1012,
+    visibility: 10000,
+    sunrise: 1618720800,
+    sunset: 1618770000,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>("");
@@ -86,22 +98,49 @@ const Dashboard = () => {
   const fetchRealTimeData = async () => {
     setIsLoading(true);
     try {
-      const data = await fetchWeatherData();
+      let data;
+      
+      if (profile && profile.location) {
+        data = await fetchWeatherByLocation(profile.location);
+        if (data.location) {
+          toast({
+            title: "Weather updated",
+            description: `Weather data from ${data.location}`,
+          });
+        }
+      } else {
+        data = await fetchWeatherData();
+        if (data.location) {
+          toast({
+            title: "Weather updated",
+            description: `Weather data from ${data.location}`,
+          });
+        } else {
+          toast({
+            title: "Weather updated",
+            description: "Using default location data",
+          });
+        }
+      }
+      
       setSensorData({
         temperature: parseFloat(data.temperature.toFixed(1)),
         humidity: Math.round(data.humidity),
         co2: Math.round(data.co2),
+        description: data.description || "Clear sky",
+        icon: data.icon || "01d",
+        feels_like: data.feels_like || data.temperature + 2,
+        wind_speed: data.wind_speed || 3.5,
+        pressure: data.pressure || 1012,
+        visibility: data.visibility || 10000,
+        sunrise: data.sunrise || 1618720800,
+        sunset: data.sunset || 1618770000,
       });
       
       const now = new Date();
       setLastUpdated(
         `${now.toLocaleTimeString()} ${now.toLocaleDateString()}`
       );
-      
-      toast({
-        title: "Data updated",
-        description: data.location ? `Weather data from ${data.location}` : "Weather data updated",
-      });
     } catch (error) {
       console.error("Error fetching data:", error);
       toast({
@@ -122,7 +161,7 @@ const Dashboard = () => {
     }, 300000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [profile]);
   
   const handleIncreaseFan = () => {
     if (fanSpeed < 5) {
@@ -156,6 +195,26 @@ const Dashboard = () => {
     }
     
     return "text-green-500";
+  };
+  
+  const getWeatherIcon = () => {
+    const iconCode = sensorData.icon;
+    if (!iconCode) return <CloudSun className="h-8 w-8 text-yellow-500" />;
+    
+    if (iconCode.includes('01')) {
+      return <CloudSun className="h-8 w-8 text-yellow-500" />;
+    } else if (iconCode.includes('02') || iconCode.includes('03') || iconCode.includes('04')) {
+      return <CloudSun className="h-8 w-8 text-gray-400" />;
+    } else if (iconCode.includes('09') || iconCode.includes('10')) {
+      return <CloudRain className="h-8 w-8 text-blue-500" />;
+    } else {
+      return <CloudSun className="h-8 w-8 text-yellow-500" />;
+    }
+  };
+  
+  const formatTime = (timestamp: number) => {
+    if (!timestamp) return "--:--";
+    return new Date(timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   };
   
   return (
@@ -198,6 +257,88 @@ const Dashboard = () => {
           Last updated: {lastUpdated}
         </div>
       )}
+      
+      <Card className="overflow-hidden border-t-4 border-t-blue-500">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex justify-between items-center">
+            <div className="flex items-center">
+              {getWeatherIcon()}
+              <span className="ml-2">Current Weather</span>
+            </div>
+            <span className="text-base font-normal">
+              {sensorData.location || "Your Location"}
+            </span>
+          </CardTitle>
+          <CardDescription>
+            {sensorData.description ? sensorData.description.charAt(0).toUpperCase() + sensorData.description.slice(1) : "Weather conditions"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex flex-col items-center p-4 bg-card rounded-lg border">
+              <Thermometer className="mb-1 h-5 w-5 text-red-500" />
+              <span className="text-sm text-muted-foreground">Temperature</span>
+              <span className="text-2xl font-bold mt-1">{sensorData.temperature}°C</span>
+              <span className="text-xs text-muted-foreground">Feels like {sensorData.feels_like}°C</span>
+            </div>
+            
+            <div className="flex flex-col items-center p-4 bg-card rounded-lg border">
+              <Droplets className="mb-1 h-5 w-5 text-blue-500" />
+              <span className="text-sm text-muted-foreground">Humidity</span>
+              <span className="text-2xl font-bold mt-1">{sensorData.humidity}%</span>
+              <span className="text-xs text-muted-foreground">Relative humidity</span>
+            </div>
+            
+            <div className="flex flex-col items-center p-4 bg-card rounded-lg border">
+              <Wind className="mb-1 h-5 w-5 text-gray-500" />
+              <span className="text-sm text-muted-foreground">Wind</span>
+              <span className="text-2xl font-bold mt-1">{sensorData.wind_speed} m/s</span>
+              <span className="text-xs text-muted-foreground">Wind speed</span>
+            </div>
+            
+            <div className="flex flex-col items-center p-4 bg-card rounded-lg border">
+              <Gauge className="mb-1 h-5 w-5 text-amber-500" />
+              <span className="text-sm text-muted-foreground">CO₂ Levels</span>
+              <span className="text-2xl font-bold mt-1">{sensorData.co2} ppm</span>
+              <span className="text-xs text-muted-foreground">Carbon dioxide</span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <div className="flex items-center p-3 bg-card rounded-lg border">
+              <Eye className="h-5 w-5 text-indigo-500 mr-2" />
+              <div>
+                <span className="text-sm text-muted-foreground">Visibility</span>
+                <p className="font-medium">{(sensorData.visibility / 1000).toFixed(1)} km</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center p-3 bg-card rounded-lg border">
+              <Gauge className="h-5 w-5 text-purple-500 mr-2" />
+              <div>
+                <span className="text-sm text-muted-foreground">Pressure</span>
+                <p className="font-medium">{sensorData.pressure} hPa</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center p-3 bg-card rounded-lg border">
+              <CloudSun className="h-5 w-5 text-amber-500 mr-2" />
+              <div>
+                <span className="text-sm text-muted-foreground">Sunrise</span>
+                <p className="font-medium">{formatTime(sensorData.sunrise)}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center p-3 bg-card rounded-lg border">
+              <CloudSun className="h-5 w-5 text-indigo-500 mr-2" />
+              <div>
+                <span className="text-sm text-muted-foreground">Sunset</span>
+                <p className="font-medium">{formatTime(sensorData.sunset)}</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
