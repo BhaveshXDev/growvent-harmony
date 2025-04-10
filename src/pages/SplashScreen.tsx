@@ -53,7 +53,7 @@ const SplashScreen = () => {
       </div>
       
       <div className="absolute bottom-4 text-white/60 text-sm">
-        © 2025 VentiGrow. All rights reserved.
+        © 2025 VentriGrow. All rights reserved.
       </div>
     </div>
   );
