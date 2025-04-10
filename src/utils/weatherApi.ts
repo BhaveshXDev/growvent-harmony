@@ -1,6 +1,6 @@
 
 // OpenWeatherMap API provides weather data including temperature and humidity
-const OPEN_WEATHER_API_KEY = "3cc39e9a87a7da446fbb3c8c8c50510e"; // Updated API key
+const OPEN_WEATHER_API_KEY = "91ef78e4f4a6e6ffe597003703154ddc"; // Updated API key
 
 interface WeatherData {
   temperature: number;
@@ -20,9 +20,9 @@ interface WeatherData {
 
 export const fetchWeatherByLocation = async (location: string): Promise<WeatherData> => {
   try {
-    // Fetch weather data by city name from OpenWeatherMap
+    // Fetch weather data by city name from OpenWeatherMap using the provided URL structure
     const weatherResponse = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&units=metric&appid=${OPEN_WEATHER_API_KEY}`
+      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${OPEN_WEATHER_API_KEY}&units=metric`
     );
     
     if (!weatherResponse.ok) {
