@@ -83,6 +83,7 @@ const Dashboard = () => {
     temperature: 25,
     humidity: 60,
     co2: 650,
+    location: "Unknown",
     description: "Clear sky",
     icon: "01d",
     feels_like: 27,
@@ -127,6 +128,7 @@ const Dashboard = () => {
         temperature: parseFloat(data.temperature.toFixed(1)),
         humidity: Math.round(data.humidity),
         co2: Math.round(data.co2),
+        location: data.location || "Unknown",
         description: data.description || "Clear sky",
         icon: data.icon || "01d",
         feels_like: data.feels_like || data.temperature + 2,
@@ -266,7 +268,7 @@ const Dashboard = () => {
               <span className="ml-2">Current Weather</span>
             </div>
             <span className="text-base font-normal">
-              {sensorData.location || "Your Location"}
+              {sensorData.location}
             </span>
           </CardTitle>
           <CardDescription>
