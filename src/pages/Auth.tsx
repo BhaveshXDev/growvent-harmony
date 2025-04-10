@@ -1,10 +1,8 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import AuthHeader from "@/components/auth/AuthHeader";
 import LoginForm from "@/components/auth/LoginForm";
@@ -17,38 +15,11 @@ const Auth = () => {
   const { toast } = useToast();
   
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
-    try {
-      setProviderError(null);
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider,
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
-      });
-
-      if (error) {
-        if (error.message.includes("provider is not enabled")) {
-          setProviderError(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login is not configured properly. Please contact the administrator.`);
-        } else {
-          toast({
-            title: "Login Failed",
-            description: error.message || `Could not sign in with ${provider}.`,
-            variant: "destructive",
-          });
-        }
-      }
-    } catch (error: any) {
-      console.error(`${provider} login failed:`, error);
-      toast({
-        title: "Login Failed",
-        description: error.message || `Could not sign in with ${provider}.`,
-        variant: "destructive",
-      });
-    }
+    // This function is kept empty as we're removing social login functionality
   };
   
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-forest p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-forest p-4 md:p-6">
       <div className="w-full max-w-md z-10">
         <AuthHeader />
       
@@ -67,7 +38,7 @@ const Auth = () => {
           </TabsList>
           
           <TabsContent value="login">
-            <Card>
+            <Card className="border shadow-sm">
               <CardHeader>
                 <CardTitle>Login</CardTitle>
                 <CardDescription>
@@ -83,7 +54,7 @@ const Auth = () => {
           </TabsContent>
           
           <TabsContent value="signup">
-            <Card>
+            <Card className="border shadow-sm">
               <CardHeader>
                 <CardTitle>Create an account</CardTitle>
                 <CardDescription>
@@ -96,7 +67,7 @@ const Auth = () => {
         </Tabs>
       </div>
       
-      <div className="mt-8 text-white/60 text-sm z-10">
+      <div className="mt-8 text-white/60 text-sm z-10 text-center">
         © 2025 VentiGrow. All rights reserved.
       </div>
       
