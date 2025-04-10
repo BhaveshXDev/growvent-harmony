@@ -6,7 +6,7 @@ interface WeatherData {
   temperature: number;
   humidity: number;
   co2: number;
-  location?: string;
+  location: string;
   description?: string;
   icon?: string;
   feels_like?: number;
@@ -56,7 +56,7 @@ export const fetchWeatherByLocation = async (location: string): Promise<WeatherD
       temperature: 25 + (Math.random() * 5 - 2.5),
       humidity: 60 + (Math.random() * 10 - 5),
       co2: 450 + (Math.random() * 50),
-      location: "Unknown",
+      location: "Unknown", // Make sure fallback data includes location
       description: "Weather data unavailable",
     };
   }
@@ -99,7 +99,7 @@ export const fetchWeatherData = async (lat = 40.7128, lon = -74.0060): Promise<W
       temperature: 25 + (Math.random() * 5 - 2.5),
       humidity: 60 + (Math.random() * 10 - 5),
       co2: 450 + (Math.random() * 50),
-      location: "Unknown",
+      location: "Unknown", // Make sure fallback data includes location
       description: "Weather data unavailable",
     };
   }
