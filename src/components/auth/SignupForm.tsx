@@ -67,6 +67,18 @@ const SignupForm = ({ handleSocialLogin }: SignupFormProps) => {
     
     try {
       setIsLoading(true);
+      
+      // Ensure the profile-images bucket exists
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const profileBucketExists = buckets?.some(bucket => bucket.name === 'profile-images');
+      
+      if (!profileBucketExists) {
+        await supabase.storage.createBucket('profile-images', {
+          public: true,
+          fileSizeLimit: 1024 * 1024 * 2, // 2MB limit
+        });
+      }
+      
       await signup(signupEmail, signupPassword, signupName, profileImage);
       
       const { data: { user } } = await supabase.auth.getUser();

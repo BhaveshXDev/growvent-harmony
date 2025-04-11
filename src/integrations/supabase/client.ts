@@ -6,9 +6,7 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://vcucqayhuyicarehoefr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZjdWNxYXlodXlpY2FyZWhvZWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjU1NjMsImV4cCI6MjA1OTcwMTU2M30._oEyA39yso0vV-7oQdkCEdOEUFqm0SnIR4tjmpspyT8";
 
-// Import the supabase client like this:
-// import { supabase } from "@/integrations/supabase/client";
-
+// Initialize the Supabase client
 export const supabase = createClient<Database>(
   SUPABASE_URL, 
   SUPABASE_PUBLISHABLE_KEY,
@@ -21,3 +19,18 @@ export const supabase = createClient<Database>(
     }
   }
 );
+
+// Create the storage bucket for profile images if it doesn't exist
+(async () => {
+  const { data: buckets } = await supabase.storage.listBuckets();
+  const profileBucketExists = buckets?.some(bucket => bucket.name === 'profile-images');
+  
+  if (!profileBucketExists) {
+    await supabase.storage.createBucket('profile-images', {
+      public: true,
+      fileSizeLimit: 1024 * 1024 * 2, // 2MB limit
+    });
+    console.log('Created profile-images bucket');
+  }
+})();
+
