@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -31,7 +30,7 @@ import {
   MapPin
 } from "lucide-react";
 import { fetchWeatherByLocation } from "@/utils/weatherApi";
-import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/AuthContext";
 
 interface ControlZone {
   id: number;
@@ -56,6 +55,7 @@ const defaultZones: ControlZone[] = [
 
 const ControlPanel = () => {
   const { toast } = useToast();
+  const { profile } = useAuth();
   const [zones, setZones] = useState<ControlZone[]>(defaultZones);
   const [autoMode, setAutoMode] = useState(false);
   const [autoSchedule, setAutoSchedule] = useState({
@@ -71,11 +71,14 @@ const ControlPanel = () => {
     location: "Loading..."
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [locationInput, setLocationInput] = useState("Delhi");
   
   useEffect(() => {
-    fetchSensorData(locationInput);
-  }, []);
+    if (profile?.location) {
+      fetchSensorData(profile.location);
+    } else {
+      fetchSensorData("Delhi"); // Fallback location if user has no location set
+    }
+  }, [profile]);
   
   const fetchSensorData = async (location: string) => {
     setIsLoading(true);
@@ -126,10 +129,15 @@ const ControlPanel = () => {
     });
   };
   
-  const handleLocationSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (locationInput.trim()) {
-      fetchSensorData(locationInput);
+  const refreshWeatherData = () => {
+    if (profile?.location) {
+      fetchSensorData(profile.location);
+    } else {
+      toast({
+        title: "Location not set",
+        description: "Please update your location in the settings page.",
+        variant: "destructive",
+      });
     }
   };
   
@@ -156,33 +164,12 @@ const ControlPanel = () => {
             <Sliders className="mr-2 h-5 w-5" />
             Current Sensor Readings
           </CardTitle>
-          <CardDescription>
-            Live environmental conditions from {sensorData.location}
+          <CardDescription className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            Live environmental conditions from {sensorData.location || "Unknown Location"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLocationSubmit} className="mb-4 flex gap-2">
-            <div className="flex-1 flex">
-              <div className="bg-muted flex items-center justify-center px-3 border border-r-0 border-input rounded-l-md">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <Input
-                placeholder="Enter location (e.g., Mumbai, Delhi)"
-                value={locationInput}
-                onChange={(e) => setLocationInput(e.target.value)}
-                className="rounded-l-none"
-                disabled={isLoading}
-              />
-            </div>
-            <Button 
-              type="submit" 
-              variant="secondary"
-              disabled={isLoading}
-            >
-              Get Weather
-            </Button>
-          </form>
-          
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="flex items-center space-x-3">
               <Thermometer className="h-8 w-8 text-red-500" />
@@ -213,11 +200,11 @@ const ControlPanel = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => fetchSensorData(locationInput)}
+              onClick={refreshWeatherData}
               disabled={isLoading}
             >
               <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Update Readings
+              Refresh Data
             </Button>
           </div>
         </CardContent>
