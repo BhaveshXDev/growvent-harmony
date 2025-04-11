@@ -19,26 +19,3 @@ export const supabase = createClient<Database>(
     }
   }
 );
-
-// Create the storage bucket for profile images if it doesn't exist
-(async () => {
-  try {
-    const { data: buckets } = await supabase.storage.listBuckets();
-    const profileBucketExists = buckets?.some(bucket => bucket.name === 'profile-images');
-    
-    if (!profileBucketExists) {
-      const { error } = await supabase.storage.createBucket('profile-images', {
-        public: true,
-        fileSizeLimit: 1024 * 1024 * 2, // 2MB limit
-      });
-      
-      if (error) {
-        console.error('Error creating profile-images bucket:', error);
-      } else {
-        console.log('Created profile-images bucket');
-      }
-    }
-  } catch (error) {
-    console.error('Error checking/creating bucket:', error);
-  }
-})();

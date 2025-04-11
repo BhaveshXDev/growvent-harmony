@@ -1,13 +1,12 @@
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Loader2, Upload, MapPin } from "lucide-react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Eye, EyeOff, Loader2, MapPin } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,9 +30,6 @@ const SignupForm = ({ handleSocialLogin }: SignupFormProps) => {
   const [gender, setGender] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [location, setLocation] = useState("");
-  const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,18 +64,7 @@ const SignupForm = ({ handleSocialLogin }: SignupFormProps) => {
     try {
       setIsLoading(true);
       
-      // Manually ensure the profile-images bucket exists before signup
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const profileBucketExists = buckets?.some(bucket => bucket.name === 'profile-images');
-      
-      if (!profileBucketExists) {
-        await supabase.storage.createBucket('profile-images', {
-          public: true,
-          fileSizeLimit: 1024 * 1024 * 2, // 2MB limit
-        });
-      }
-      
-      await signup(signupEmail, signupPassword, signupName, profileImage);
+      await signup(signupEmail, signupPassword, signupName, null);
       
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -110,53 +95,9 @@ const SignupForm = ({ handleSocialLogin }: SignupFormProps) => {
     }
   };
   
-  const handleProfileImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setProfileImage(file);
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImageUrl(imageUrl);
-    }
-  };
-  
-  const triggerFileInput = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-  
   return (
     <form onSubmit={handleSignup}>
       <CardContent className="space-y-4">
-        <div className="flex justify-center mb-2">
-          <div className="relative">
-            <Avatar className="w-24 h-24 border-2 border-forest">
-              {profileImageUrl ? (
-                <AvatarImage src={profileImageUrl} alt="Profile" />
-              ) : (
-                <AvatarFallback className="bg-muted text-xl">
-                  {signupName ? signupName.charAt(0).toUpperCase() : "U"}
-                </AvatarFallback>
-              )}
-            </Avatar>
-            <Button
-              type="button"
-              size="icon"
-              className="absolute -bottom-2 -right-2 rounded-full bg-forest text-white hover:bg-forest/80"
-              onClick={triggerFileInput}
-            >
-              <Upload className="h-4 w-4" />
-            </Button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleProfileImageUpload}
-            />
-          </div>
-        </div>
-        
         <div className="space-y-2">
           <Label htmlFor="name">Full Name</Label>
           <Input 

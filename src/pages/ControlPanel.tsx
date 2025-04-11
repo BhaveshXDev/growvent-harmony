@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { 
   Card, 
@@ -26,9 +27,11 @@ import {
   Wind, 
   Clock, 
   Save,
-  RefreshCw
+  RefreshCw,
+  MapPin
 } from "lucide-react";
-import { fetchWeatherData } from "@/utils/weatherApi";
+import { fetchWeatherByLocation } from "@/utils/weatherApi";
+import { Input } from "@/components/ui/input";
 
 interface ControlZone {
   id: number;
@@ -41,6 +44,7 @@ interface SensorData {
   temperature: number;
   humidity: number;
   co2: number;
+  location: string;
 }
 
 const defaultZones: ControlZone[] = [
@@ -64,21 +68,24 @@ const ControlPanel = () => {
     temperature: 25,
     humidity: 60,
     co2: 650,
+    location: "Loading..."
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [locationInput, setLocationInput] = useState("Delhi");
   
   useEffect(() => {
-    fetchSensorData();
+    fetchSensorData(locationInput);
   }, []);
   
-  const fetchSensorData = async () => {
+  const fetchSensorData = async (location: string) => {
     setIsLoading(true);
     try {
-      const data = await fetchWeatherData();
+      const data = await fetchWeatherByLocation(location);
       setSensorData({
         temperature: parseFloat(data.temperature.toFixed(1)),
         humidity: Math.round(data.humidity),
-        co2: Math.round(data.co2)
+        co2: Math.round(data.co2),
+        location: data.location
       });
       
       toast({
@@ -87,6 +94,11 @@ const ControlPanel = () => {
       });
     } catch (error) {
       console.error("Error fetching sensor data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch weather data. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -114,6 +126,13 @@ const ControlPanel = () => {
     });
   };
   
+  const handleLocationSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (locationInput.trim()) {
+      fetchSensorData(locationInput);
+    }
+  };
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -138,10 +157,32 @@ const ControlPanel = () => {
             Current Sensor Readings
           </CardTitle>
           <CardDescription>
-            Live environmental conditions
+            Live environmental conditions from {sensorData.location}
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <form onSubmit={handleLocationSubmit} className="mb-4 flex gap-2">
+            <div className="flex-1 flex">
+              <div className="bg-muted flex items-center justify-center px-3 border border-r-0 border-input rounded-l-md">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <Input
+                placeholder="Enter location (e.g., Mumbai, Delhi)"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                className="rounded-l-none"
+                disabled={isLoading}
+              />
+            </div>
+            <Button 
+              type="submit" 
+              variant="secondary"
+              disabled={isLoading}
+            >
+              Get Weather
+            </Button>
+          </form>
+          
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="flex items-center space-x-3">
               <Thermometer className="h-8 w-8 text-red-500" />
@@ -172,7 +213,7 @@ const ControlPanel = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={fetchSensorData}
+              onClick={() => fetchSensorData(locationInput)}
               disabled={isLoading}
             >
               <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />

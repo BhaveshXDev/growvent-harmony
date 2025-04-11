@@ -1,17 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserCircle, Save, Upload, LogOut } from "lucide-react";
+import { UserCircle, Save, LogOut } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 
@@ -29,9 +29,6 @@ const Settings = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -51,85 +48,18 @@ const Settings = () => {
         mobile: profile.mobile || "",
         location: profile.location || "",
       });
-      
-      if (profile.profileImageUrl) {
-        setProfileImagePreview(profile.profileImageUrl);
-      }
     }
   }, [profile, form]);
-
-  const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setProfileImage(file);
-      setProfileImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const uploadProfileImage = async (): Promise<string | null> => {
-    if (!profileImage || !user) return null;
-    
-    try {
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const profileBucketExists = buckets?.some(bucket => bucket.name === 'profile-images');
-      
-      if (!profileBucketExists) {
-        const { error: bucketError } = await supabase.storage.createBucket('profile-images', {
-          public: true,
-          fileSizeLimit: 1024 * 1024 * 2, // 2MB limit
-        });
-        
-        if (bucketError) {
-          console.error('Error creating profile-images bucket:', bucketError);
-          throw bucketError;
-        }
-      }
-      
-      const fileExt = profileImage.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('profile-images')
-        .upload(fileName, profileImage);
-      
-      if (uploadError) {
-        console.error('Error uploading profile image:', uploadError);
-        throw uploadError;
-      }
-      
-      const { data } = supabase.storage
-        .from('profile-images')
-        .getPublicUrl(fileName);
-      
-      return data.publicUrl;
-    } catch (error) {
-      console.error('Error uploading profile image:', error);
-      toast({
-        title: "Error",
-        description: "Failed to upload profile image. Please try again.",
-        variant: "destructive",
-      });
-      return null;
-    }
-  };
 
   const onSubmit = async (data: ProfileFormValues) => {
     setIsLoading(true);
     try {
-      let imageUrl = profile?.profileImageUrl;
-      if (profileImage) {
-        const newImageUrl = await uploadProfileImage();
-        if (newImageUrl) {
-          imageUrl = newImageUrl;
-        }
-      }
-
       await updateProfile({
         name: data.name,
         gender: data.gender,
         mobile: data.mobile,
         location: data.location,
-        profileImageUrl: imageUrl,
+        profileImageUrl: profile?.profileImageUrl,
       });
 
       toast({
@@ -165,12 +95,6 @@ const Settings = () => {
     }
   };
 
-  const triggerFileInput = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">My Profile</h1>
@@ -186,36 +110,8 @@ const Settings = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="flex flex-col items-center mb-6">
-                <div className="relative w-24 h-24 mb-4">
-                  {profileImagePreview ? (
-                    <img
-                      src={profileImagePreview}
-                      alt="Profile"
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
-                      <UserCircle className="w-12 h-12 text-gray-400" />
-                    </div>
-                  )}
-                  <div className="absolute -bottom-2 -right-2">
-                    <Button
-                      type="button"
-                      size="icon"
-                      className="bg-forest hover:bg-forest/90 text-white rounded-full"
-                      onClick={triggerFileInput}
-                    >
-                      <Upload className="h-4 w-4" />
-                    </Button>
-                    <Input
-                      id="profile-image"
-                      type="file"
-                      className="hidden"
-                      ref={fileInputRef}
-                      onChange={handleProfileImageChange}
-                      accept="image/*"
-                    />
-                  </div>
+                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                  <UserCircle className="w-12 h-12 text-gray-400" />
                 </div>
               </div>
 
