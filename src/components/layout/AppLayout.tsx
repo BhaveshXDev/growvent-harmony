@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -26,6 +25,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -39,6 +39,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const [hasNotifications, setHasNotifications] = useState(true);
   const [notificationCount, setNotificationCount] = useState(3);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const isDark = localStorage.getItem("ventiGrowDarkMode") === "true";
@@ -243,19 +244,19 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       </footer>
       
       <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-charcoal border-t shadow-lg z-50">
-        <div className="flex justify-between px-2 py-2 max-w-screen-xl mx-auto">
+        <div className="grid grid-cols-6 px-1 py-2 max-w-screen-xl mx-auto">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center py-1 px-2 rounded-lg ${
+              className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors ${
                 location.pathname === item.path
                   ? "text-forest font-medium"
-                  : "text-charcoal dark:text-softgray"
+                  : "text-charcoal dark:text-softgray hover:bg-gray-100 dark:hover:bg-gray-800"
               }`}
             >
               {item.icon}
-              <span className="text-xs mt-1">{item.label}</span>
+              <span className="text-[10px] sm:text-xs mt-1 text-center">{item.label}</span>
             </Link>
           ))}
         </div>
