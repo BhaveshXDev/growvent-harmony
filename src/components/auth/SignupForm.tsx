@@ -68,7 +68,7 @@ const SignupForm = ({ handleSocialLogin }: SignupFormProps) => {
     try {
       setIsLoading(true);
       
-      // Ensure the profile-images bucket exists
+      // Manually ensure the profile-images bucket exists before signup
       const { data: buckets } = await supabase.storage.listBuckets();
       const profileBucketExists = buckets?.some(bucket => bucket.name === 'profile-images');
       

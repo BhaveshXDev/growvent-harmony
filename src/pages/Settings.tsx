@@ -15,7 +15,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 
-// Form schema for validation - removed password and confirmPassword
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   gender: z.string().optional(),
@@ -31,10 +30,9 @@ const Settings = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(profile?.profileImageUrl || null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize form with user data
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -45,7 +43,6 @@ const Settings = () => {
     },
   });
 
-  // Load user data when available
   useEffect(() => {
     if (profile) {
       form.reset({
@@ -73,6 +70,21 @@ const Settings = () => {
     if (!profileImage || !user) return null;
     
     try {
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const profileBucketExists = buckets?.some(bucket => bucket.name === 'profile-images');
+      
+      if (!profileBucketExists) {
+        const { error: bucketError } = await supabase.storage.createBucket('profile-images', {
+          public: true,
+          fileSizeLimit: 1024 * 1024 * 2, // 2MB limit
+        });
+        
+        if (bucketError) {
+          console.error('Error creating profile-images bucket:', bucketError);
+          throw bucketError;
+        }
+      }
+      
       const fileExt = profileImage.name.split('.').pop();
       const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       
@@ -104,7 +116,6 @@ const Settings = () => {
   const onSubmit = async (data: ProfileFormValues) => {
     setIsLoading(true);
     try {
-      // Upload profile image if changed
       let imageUrl = profile?.profileImageUrl;
       if (profileImage) {
         const newImageUrl = await uploadProfileImage();
@@ -113,7 +124,6 @@ const Settings = () => {
         }
       }
 
-      // Update user profile
       await updateProfile({
         name: data.name,
         gender: data.gender,

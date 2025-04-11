@@ -52,7 +52,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [emailConfirmationPending, setEmailConfirmationPending] = useState(false);
   const { toast } = useToast();
 
-  // Fetch profile data when user changes
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) {
@@ -90,11 +89,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     fetchProfile();
   }, [user]);
 
-  // Setup auth state listener
   useEffect(() => {
     setLoading(true);
 
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         setSession(currentSession);
@@ -106,7 +103,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
@@ -189,6 +185,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("User creation failed");
       }
 
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const profileBucketExists = buckets?.some(bucket => bucket.name === 'profile-images');
+      
+      if (!profileBucketExists) {
+        await supabase.storage.createBucket('profile-images', {
+          public: true,
+          fileSizeLimit: 1024 * 1024 * 2, // 2MB limit
+        });
+      }
+
       if (profileImage) {
         const fileExt = profileImage.name.split('.').pop();
         const filePath = `${authData.user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
@@ -238,6 +244,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const updateProfile = async (data: Partial<Profile>) => {
     try {
       if (!user) throw new Error("No user logged in");
+      
+      if (data.profileImageUrl) {
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const profileBucketExists = buckets?.some(bucket => bucket.name === 'profile-images');
+        
+        if (!profileBucketExists) {
+          await supabase.storage.createBucket('profile-images', {
+            public: true,
+            fileSizeLimit: 1024 * 1024 * 2, // 2MB limit
+          });
+        }
+      }
       
       const { error } = await supabase
         .from('profiles')
