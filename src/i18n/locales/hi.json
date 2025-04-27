@@ -8,7 +8,22 @@
     "weather": "मौसम",
     "settings": "सेटिंग्स",
     "logout": "लॉग आउट",
-    "profile": "मेरी प्रोफाइल"
+    "profile": "मेरी प्रोफाइल",
+    "notifications": "सूचनाएँ",
+    "markAllRead": "सभी को पढ़ा हुआ मार्क करें",
+    "noNotifications": "कोई नई सूचनाएँ नहीं",
+    "notification": "सूचना",
+    "notificationCleared": "सूचनाएँ साफ़ की गईं",
+    "notificationsMarkedRead": "सभी सूचनाएँ पढ़ी गईं के रूप में चिह्नित की गईं"
+  },
+  "notifications": {
+    "temperatureAlert": "तापमान अलर्ट",
+    "temperatureDescription": "ग्रीनहाउस तापमान सीमा से ऊपर है",
+    "wateringReminder": "पानी देने का रिमाइंडर",
+    "wateringDescription": "टमाटर को आज पानी दें",
+    "systemUpdate": "सिस्टम अपडेट",
+    "systemDescription": "नया सिस्टम वर्शन उपलब्ध है",
+    "hoursAgo": "{{count}} घंटे पहले"
   },
   "settings": {
     "title": "सेटिंग्स",

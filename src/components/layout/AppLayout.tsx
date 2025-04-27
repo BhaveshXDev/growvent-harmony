@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { useTranslation } from "react-i18next"; // Add this import for translations
+import { useTranslation } from "react-i18next";
 import { 
   Home, 
   Sliders, 
@@ -34,7 +34,7 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children }: AppLayoutProps) => {
-  const { t } = useTranslation(); // Add this hook to access translations
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const { logout, user, profile } = useAuth();
   const { toast } = useToast();
@@ -70,14 +70,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const handleLogout = () => {
     logout();
     toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
+      title: t("settings.loggedOut"),
+      description: t("settings.loggedOutDescription"),
     });
   };
 
   const showNotification = (message: string) => {
     toast({
-      title: "Notification",
+      title: t("common.notification"),
       description: message,
     });
   };
@@ -86,8 +86,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     setNotificationCount(0);
     setHasNotifications(false);
     toast({
-      title: "Notifications cleared",
-      description: "All notifications have been marked as read",
+      title: t("common.notificationCleared"),
+      description: t("common.notificationsMarkedRead"),
     });
     setNotificationsOpen(false);
   };
@@ -95,21 +95,21 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const notifications = [
     {
       id: 1,
-      title: "Temperature Alert",
-      description: "Greenhouse temperature is above the threshold",
-      time: "2 hours ago"
+      title: t("notifications.temperatureAlert"),
+      description: t("notifications.temperatureDescription"),
+      time: t("notifications.hoursAgo", { count: 2 })
     },
     {
       id: 2,
-      title: "Watering Reminder",
-      description: "Tomatoes need watering today",
-      time: "3 hours ago"
+      title: t("notifications.wateringReminder"),
+      description: t("notifications.wateringDescription"),
+      time: t("notifications.hoursAgo", { count: 3 })
     },
     {
       id: 3,
-      title: "System Update",
-      description: "New system version available",
-      time: "5 hours ago"
+      title: t("notifications.systemUpdate"),
+      description: t("notifications.systemDescription"),
+      time: t("notifications.hoursAgo", { count: 5 })
     }
   ];
 
@@ -156,7 +156,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuLabel>{t("common.notifications")}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {notifications.length > 0 ? (
                   <>
@@ -178,12 +178,12 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                       className="justify-center text-center cursor-pointer" 
                       onClick={clearNotifications}
                     >
-                      Mark all as read
+                      {t("common.markAllRead")}
                     </DropdownMenuItem>
                   </>
                 ) : (
                   <div className="p-4 text-center text-muted-foreground">
-                    No new notifications
+                    {t("common.noNotifications")}
                   </div>
                 )}
               </DropdownMenuContent>

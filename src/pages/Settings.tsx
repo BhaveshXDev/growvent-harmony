@@ -39,6 +39,7 @@ const Settings = () => {
 
   const handleLanguageChange = (value: string) => {
     i18n.changeLanguage(value);
+    localStorage.setItem("i18nextLng", value);
     toast({
       title: t("settings.languageChanged"),
       description: t("settings.languageChangedDescription"),
@@ -61,7 +62,7 @@ const Settings = () => {
         </CardHeader>
         <CardContent>
           <Select
-            defaultValue={i18n.language}
+            value={i18n.language}
             onValueChange={handleLanguageChange}
           >
             <SelectTrigger className="w-full sm:w-[240px]">

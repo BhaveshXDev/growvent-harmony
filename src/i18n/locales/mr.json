@@ -8,7 +8,22 @@
     "weather": "हवामान",
     "settings": "सेटिंग्ज",
     "logout": "लॉग आऊट",
-    "profile": "माझी प्रोफाइल"
+    "profile": "माझी प्रोफाइल",
+    "notifications": "सूचना",
+    "markAllRead": "सर्व वाचलेले म्हणून चिन्हांकित करा",
+    "noNotifications": "कोणत्याही नवीन सूचना नाहीत",
+    "notification": "सूचना",
+    "notificationCleared": "सूचना साफ केल्या",
+    "notificationsMarkedRead": "सर्व सूचना वाचल्या म्हणून चिन्हांकित केल्या आहेत"
+  },
+  "notifications": {
+    "temperatureAlert": "तापमान अलर्ट",
+    "temperatureDescription": "ग्रीनहाउसचे तापमान मर्यादेपेक्षा जास्त आहे",
+    "wateringReminder": "पाणी देण्याची आठवण",
+    "wateringDescription": "टोमॅटोला आज पाणी द्या",
+    "systemUpdate": "सिस्टम अपडेट",
+    "systemDescription": "नवीन सिस्टम आवृत्ती उपलब्ध आहे",
+    "hoursAgo": "{{count}} तासांपूर्वी"
   },
   "settings": {
     "title": "सेटिंग्ज",

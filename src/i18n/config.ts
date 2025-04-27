@@ -7,6 +7,7 @@ import enTranslations from './locales/en.json';
 import hiTranslations from './locales/hi.json';
 import mrTranslations from './locales/mr.json';
 
+// Initialize i18next
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -18,7 +19,14 @@ i18n
     },
     fallbackLng: 'en',
     interpolation: {
-      escapeValue: false,
+      escapeValue: false, // React already escapes
+    },
+    detection: {
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage'],
+    },
+    react: {
+      useSuspense: false, // Prevents issues with SSR
     },
   });
 

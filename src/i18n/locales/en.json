@@ -8,7 +8,22 @@
     "weather": "Weather",
     "settings": "Settings",
     "logout": "Logout",
-    "profile": "My Profile"
+    "profile": "My Profile",
+    "notifications": "Notifications",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No new notifications",
+    "notification": "Notification",
+    "notificationCleared": "Notifications cleared",
+    "notificationsMarkedRead": "All notifications have been marked as read"
+  },
+  "notifications": {
+    "temperatureAlert": "Temperature Alert",
+    "temperatureDescription": "Greenhouse temperature is above the threshold",
+    "wateringReminder": "Watering Reminder",
+    "wateringDescription": "Tomatoes need watering today",
+    "systemUpdate": "System Update",
+    "systemDescription": "New system version available",
+    "hoursAgo": "{{count}} hours ago"
   },
   "settings": {
     "title": "Settings",
