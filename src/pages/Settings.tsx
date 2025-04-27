@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
@@ -8,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserCircle, Save, LogOut } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +25,7 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const Settings = () => {
+  const { t, i18n } = useTranslation();
   const { user, profile, updateProfile, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -63,8 +64,8 @@ const Settings = () => {
       });
 
       toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
+        title: t("settings.profileUpdated"),
+        description: t("settings.profileUpdatedDescription"),
       });
     } catch (error: any) {
       console.error('Error updating profile:', error);
@@ -95,15 +96,47 @@ const Settings = () => {
     }
   };
 
+  const handleLanguageChange = (value: string) => {
+    i18n.changeLanguage(value);
+    toast({
+      title: t("Language Changed"),
+      description: t("The application language has been updated."),
+    });
+  };
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">My Profile</h1>
+      <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
+          <CardTitle>{t("settings.language")}</CardTitle>
           <CardDescription>
-            Update your personal details and preferences
+            Choose your preferred language
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Select
+            defaultValue={i18n.language}
+            onValueChange={handleLanguageChange}
+          >
+            <SelectTrigger className="w-full sm:w-[240px]">
+              <SelectValue placeholder="Select Language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="hi">हिंदी (Hindi)</SelectItem>
+              <SelectItem value="mr">मराठी (Marathi)</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("settings.personalInfo")}</CardTitle>
+          <CardDescription>
+            {t("settings.updateProfile")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -204,12 +237,12 @@ const Settings = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Saving...
+                    {t("settings.saving")}
                   </span>
                 ) : (
                   <span className="flex items-center">
                     <Save className="mr-2 h-4 w-4" />
-                    Save Changes
+                    {t("settings.saveChanges")}
                   </span>
                 )}
               </Button>
@@ -220,19 +253,18 @@ const Settings = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Account Management</CardTitle>
+          <CardTitle>{t("settings.accountManagement")}</CardTitle>
           <CardDescription>
-            Manage your account settings and security
+            {t("settings.accountSettings")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <Separator className="my-4" />
-            
             <div>
-              <h3 className="text-lg font-medium mb-2">Log Out</h3>
+              <h3 className="text-lg font-medium mb-2">{t("common.logout")}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Log out from your account on this device
+                {t("settings.logoutText")}
               </p>
               <Button 
                 variant="destructive" 
@@ -240,7 +272,7 @@ const Settings = () => {
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4" />
-                Log Out
+                {t("common.logout")}
               </Button>
             </div>
           </div>

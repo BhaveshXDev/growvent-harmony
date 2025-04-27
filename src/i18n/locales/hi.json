@@ -1,0 +1,31 @@
+
+{
+  "common": {
+    "dashboard": "डैशबोर्ड",
+    "control": "नियंत्रण",
+    "crops": "फसलें",
+    "greenhouse": "ग्रीनहाउस",
+    "weather": "मौसम",
+    "settings": "सेटिंग्स",
+    "logout": "लॉग आउट",
+    "profile": "मेरी प्रोफाइल"
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "language": "भाषा",
+    "personalInfo": "व्यक्तिगत जानकारी",
+    "updateProfile": "अपनी व्यक्तिगत जानकारी और प्राथमिकताएं अपडेट करें",
+    "fullName": "पूरा नाम",
+    "gender": "लिंग",
+    "mobile": "मोबाइल नंबर",
+    "location": "स्थान",
+    "male": "पुरुष",
+    "female": "महिला",
+    "other": "अन्य",
+    "saveChanges": "परिवर्तन सहेजें",
+    "saving": "सहेज रहा है...",
+    "accountManagement": "खाता प्रबंधन",
+    "accountSettings": "अपनी खाता सेटिंग्स और सुरक्षा प्रबंधित करें",
+    "logoutText": "इस डिवाइस से अपने खाते से लॉग आउट करें"
+  }
+}

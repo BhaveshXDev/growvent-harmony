@@ -1,0 +1,31 @@
+
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "control": "Control",
+    "crops": "Crops",
+    "greenhouse": "Greenhouse",
+    "weather": "Weather",
+    "settings": "Settings",
+    "logout": "Logout",
+    "profile": "My Profile"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "personalInfo": "Personal Information",
+    "updateProfile": "Update your personal details and preferences",
+    "fullName": "Full Name",
+    "gender": "Gender",
+    "mobile": "Mobile Number",
+    "location": "Location",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "accountManagement": "Account Management",
+    "accountSettings": "Manage your account settings and security",
+    "logoutText": "Log out from your account on this device"
+  }
+}
