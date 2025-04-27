@@ -111,12 +111,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   ];
 
   const navItems = [
-    { path: "/dashboard", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
-    { path: "/control", label: "Control", icon: <Sliders className="w-5 h-5" /> },
-    { path: "/crops", label: "Crops", icon: <Apple className="w-5 h-5" /> },
-    { path: "/greenhouse", label: "Greenhouse", icon: <Sprout className="w-5 h-5" /> },
-    { path: "/weather", label: "Weather", icon: <Cloud className="w-5 h-5" /> },
-    { path: "/settings", label: "Settings", icon: <SettingsIcon className="w-5 h-5" /> },
+    { path: "/dashboard", label: "common.dashboard", icon: <Home className="w-5 h-5" /> },
+    { path: "/control", label: "common.control", icon: <Sliders className="w-5 h-5" /> },
+    { path: "/crops", label: "common.crops", icon: <Apple className="w-5 h-5" /> },
+    { path: "/greenhouse", label: "common.greenhouse", icon: <Sprout className="w-5 h-5" /> },
+    { path: "/weather", label: "common.weather", icon: <Cloud className="w-5 h-5" /> },
+    { path: "/profile", label: "common.profile", icon: <UserCircle className="w-5 h-5" /> },
+    { path: "/settings", label: "common.settings", icon: <SettingsIcon className="w-5 h-5" /> },
   ];
 
   return (
@@ -220,12 +221,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 <DropdownMenuLabel>{profile?.name || "User"}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <Link to="/settings" className="w-full">My Profile</Link>
+                  <Link to="/profile" className="w-full">{t("common.profile")}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+                <DropdownMenuItem>
+                  <Link to="/settings" className="w-full">{t("common.settings")}</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -244,7 +244,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       </footer>
       
       <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-charcoal border-t shadow-lg z-50">
-        <div className="grid grid-cols-6 px-1 py-2 max-w-screen-xl mx-auto">
+        <div className="grid grid-cols-7 px-1 py-2 max-w-screen-xl mx-auto">
           {navItems.map((item) => (
             <Link
               key={item.path}
@@ -256,7 +256,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               }`}
             >
               {item.icon}
-              <span className="text-[10px] sm:text-xs mt-1 text-center">{item.label}</span>
+              <span className="text-[10px] sm:text-xs mt-1 text-center">{t(item.label)}</span>
             </Link>
           ))}
         </div>

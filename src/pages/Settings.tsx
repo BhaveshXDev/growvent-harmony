@@ -1,90 +1,31 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserCircle, Save, LogOut } from "lucide-react";
+import { LogOut, Bell, Languages, Shield } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useTranslation } from "react-i18next";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
-
-const profileSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  gender: z.string().optional(),
-  mobile: z.string().regex(/^[0-9]{10}$/, "Mobile number must be 10 digits").optional(),
-  location: z.string().min(5, "Address must be at least 5 characters").optional(),
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const Settings = () => {
   const { t, i18n } = useTranslation();
-  const { user, profile, updateProfile, logout } = useAuth();
+  const { logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: "",
-      gender: "",
-      mobile: "",
-      location: "",
-    },
-  });
-
-  useEffect(() => {
-    if (profile) {
-      form.reset({
-        name: profile.name || "",
-        gender: profile.gender || "",
-        mobile: profile.mobile || "",
-        location: profile.location || "",
-      });
-    }
-  }, [profile, form]);
-
-  const onSubmit = async (data: ProfileFormValues) => {
-    setIsLoading(true);
-    try {
-      await updateProfile({
-        name: data.name,
-        gender: data.gender,
-        mobile: data.mobile,
-        location: data.location,
-        profileImageUrl: profile?.profileImageUrl,
-      });
-
-      toast({
-        title: t("settings.profileUpdated"),
-        description: t("settings.profileUpdatedDescription"),
-      });
-    } catch (error: any) {
-      console.error('Error updating profile:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update profile. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [securityAlerts, setSecurityAlerts] = useState(true);
 
   const handleLogout = async () => {
     try {
       await logout();
       toast({
-        title: "Logged out",
-        description: "You have been successfully logged out.",
+        title: t("settings.loggedOut"),
+        description: t("settings.loggedOutDescription"),
       });
       navigate("/auth");
     } catch (error: any) {
@@ -99,8 +40,8 @@ const Settings = () => {
   const handleLanguageChange = (value: string) => {
     i18n.changeLanguage(value);
     toast({
-      title: t("Language Changed"),
-      description: t("The application language has been updated."),
+      title: t("settings.languageChanged"),
+      description: t("settings.languageChangedDescription"),
     });
   };
 
@@ -110,9 +51,12 @@ const Settings = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("settings.language")}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Languages className="h-5 w-5" />
+            {t("settings.language")}
+          </CardTitle>
           <CardDescription>
-            Choose your preferred language
+            {t("settings.languageDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -121,7 +65,7 @@ const Settings = () => {
             onValueChange={handleLanguageChange}
           >
             <SelectTrigger className="w-full sm:w-[240px]">
-              <SelectValue placeholder="Select Language" />
+              <SelectValue placeholder={t("settings.selectLanguage")} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="en">English</SelectItem>
@@ -134,126 +78,65 @@ const Settings = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("settings.personalInfo")}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            {t("settings.notifications")}
+          </CardTitle>
           <CardDescription>
-            {t("settings.updateProfile")}
+            {t("settings.notificationsDescription")}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="flex flex-col items-center mb-6">
-                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
-                  <UserCircle className="w-12 h-12 text-gray-400" />
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter Your Name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="gender"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Gender</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select gender" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="mobile"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mobile Number</FormLabel>
-                      <FormControl>
-                        <div className="flex">
-                          <div className="flex items-center px-3 bg-muted rounded-l-md border border-r-0">
-                            +91
-                          </div>
-                          <Input
-                            className="rounded-l-none"
-                            placeholder="xxxxxxxxxx"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Location</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Your address"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <Button type="submit" className="w-full bg-forest hover:bg-forest/90" disabled={isLoading}>
-                {isLoading ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    {t("settings.saving")}
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    <Save className="mr-2 h-4 w-4" />
-                    {t("settings.saveChanges")}
-                  </span>
-                )}
-              </Button>
-            </form>
-          </Form>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between space-x-2">
+            <Label htmlFor="app-notifications">{t("settings.appNotifications")}</Label>
+            <Switch
+              id="app-notifications"
+              checked={notificationsEnabled}
+              onCheckedChange={setNotificationsEnabled}
+            />
+          </div>
+          <div className="flex items-center justify-between space-x-2">
+            <Label htmlFor="marketing-emails">{t("settings.marketingEmails")}</Label>
+            <Switch
+              id="marketing-emails"
+              defaultChecked={false}
+            />
+          </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("settings.accountManagement")}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            {t("settings.security")}
+          </CardTitle>
+          <CardDescription>
+            {t("settings.securityDescription")}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between space-x-2">
+            <Label htmlFor="security-alerts">{t("settings.securityAlerts")}</Label>
+            <Switch
+              id="security-alerts"
+              checked={securityAlerts}
+              onCheckedChange={setSecurityAlerts}
+            />
+          </div>
+          <div className="flex items-center justify-between space-x-2">
+            <Label htmlFor="two-factor">{t("settings.twoFactor")}</Label>
+            <Switch
+              id="two-factor"
+              defaultChecked={false}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-destructive">{t("settings.accountManagement")}</CardTitle>
           <CardDescription>
             {t("settings.accountSettings")}
           </CardDescription>

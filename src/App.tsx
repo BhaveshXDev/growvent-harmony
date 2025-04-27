@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -12,6 +13,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import ControlPanel from "./pages/ControlPanel";
 import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 import GreenhouseProfile from "./pages/GreenhouseProfile";
 import Weather from "./pages/Weather";
 import Crops from "./pages/Crops";
@@ -90,6 +92,17 @@ const App = () => {
                     <ProtectedRoute>
                       <AppLayout>
                         <Settings />
+                      </AppLayout>
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <Profile />
                       </AppLayout>
                     </ProtectedRoute>
                   } 
