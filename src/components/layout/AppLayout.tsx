@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next"; // Add this import for translations
 import { 
   Home, 
   Sliders, 
@@ -32,6 +34,7 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children }: AppLayoutProps) => {
+  const { t } = useTranslation(); // Add this hook to access translations
   const location = useLocation();
   const { logout, user, profile } = useAuth();
   const { toast } = useToast();
